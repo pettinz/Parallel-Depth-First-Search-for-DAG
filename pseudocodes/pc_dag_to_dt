@@ -18,12 +18,12 @@
 //      Set queue Q = P for the next iteration
 //  end while 
 
-// FROM THE LIST OF PARENT YOU SHOULD RECREATE THE MATRIX AND FROM IT THE CSC STORAGE
+// FROM THE VECTOR OF PARENT YOU SHOULD RECREATE THE MATRIX AND FROM IT THE CSC STORAGE
 
 // ////////////////////
 
 BFS1_topdown_dag_to_dt () {
-    path[graph_size] = new List(); // Initialize path to empty list and parent to -1 for each node.
+    path[graph_size] = new Vector(); // Initialize path to empty vector for each node and parent to -1 for each node.
     parent[graph_size] = {-1}; 
     Q = new List(); 
     // parent_count[graph_size] è inizializzato con il numero di padri di ogni nodo in fase di lettura del grafo
@@ -57,17 +57,25 @@ thread_nodeP(p) {
 }
 
 path (i, p) { 
-    Pri = new List; 
-    Pri.insert(path[p]); // Pri = path[p] concateneted with p
-    Pri.insert(p) // Let the new path be Pri
-    Qri = path[i]; //  Let the existing path be Qri
-    
+    Pri = new List(copy(path[p])) // Pri = path[p] concateneted with i -> MUST COPY THE PATH
+    Pri.insert(i) 
+    Qri = path[i]; 
+    bool new = false;
+
+    //// COMPARE IS DONE OUTSIDE THE CRITICAL SECTION
+
+    if ( Qri.isEmpty() ) 
+        Qri = Pri; 
+    else if (compare_path(Pri,Qri) < 0 ) { // Pri < Qri
+        Qri = Pri; 
+        new = true;
+    }
+        
+
     lock();
 
-    if (compare_path(Pri,Qri) < 0 ) { // Pri < Qri
-        path[i] = Pri; 
-        parent[i] = p;
-    }
+    path[i] = Qri
+    if (new) parent[i] = p; 
 
     parent_count[i] -= 1; // Mark i incoming edge (p; i) as visited
     if (parent_count[i] == 0) 
