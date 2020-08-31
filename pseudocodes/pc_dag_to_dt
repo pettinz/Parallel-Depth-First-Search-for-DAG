@@ -1,0 +1,73 @@
+//  Initialize path to {} and parent to -1 for every node.
+//  Find roots and insert them into queue Q.
+//  while Q != {} do
+//      for node p of Q do in parallel
+//          Let Cp be a set of children of p and queue P = {}
+//          for node i of Cp do in parallel
+//              Let the existing path be Qri
+//              Let the new path be Pri
+//              (Pri is a concatenation of path to p & node i)
+//              if Pri <= Qri then
+//                  Set Qri = Pri
+//                  Set parent(i) = p
+//              end if      
+//              Mark i incoming edge (p; i) as visited
+//              Insert i into P if all incoming edges are visited
+//          end for
+//      end for
+//      Set queue Q = P for the next iteration
+//  end while 
+
+
+BFS1_topdown_dag_to_dt () {
+    path[graph_size] = {MAX_INT}; // Initialize path to 0 and parent to -1 for every node.
+    parent[graph_size] = {-1}; 
+    Q = new List(); 
+    // parent_count[graph_size] è inizializzato con il numero di padri di ogni nodo in fase di lettura del grafo
+
+
+    for (int i = 0; i<graph_size; i++) {
+        if (parent_count[i] == 0) // non ha padri -> è la root 
+            Q.insert(i); // Find roots and insert them into queue Q.
+    } 
+
+    while (! Q.isEmpty() ) { 
+        C = new List();
+        for (each n_p in Q) //  for node p of Q do in parallel
+            thread_nodeP(n_p) ;
+
+        wait_for_all_thread(thread_nodeP);
+        Q = move(C); // Set queue Q = C for the next iteration
+                    // su C bisogna poi fare la free()
+
+    } 
+}
+
+
+thread_nodeP(p) {
+    for (int i = IA[p]; i < IA[p+1]; i++) // Let Cp be a set of children of node p
+        task(path, i, p); // for node i of Cp do in parallel    
+
+    wait_all_task();
+    exit_thread(); 
+        
+}
+
+path (i, p) { 
+    Pri = path[p] + 1 // Let the new path be Pri
+    Qri = path[i]; //  Let the existing path be Qri
+    
+    lock();
+
+    if (Pri <= Qri) {
+        path[i] = Pri; 
+        parent[i] = p;
+    }
+
+    parent_count[i] -= 1; // Mark i incoming edge (p; i) as visited
+    if (parent_count[i] == 0) 
+        P.insert(i); // Insert i into P if all incoming edges are visited
+
+    unlock();
+    
+}
