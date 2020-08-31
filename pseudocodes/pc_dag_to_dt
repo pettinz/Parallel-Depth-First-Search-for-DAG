@@ -18,9 +18,12 @@
 //      Set queue Q = P for the next iteration
 //  end while 
 
+// FROM THE LIST OF PARENT YOU SHOULD RECREATE THE MATRIX AND FROM IT THE CSC STORAGE
+
+// ////////////////////
 
 BFS1_topdown_dag_to_dt () {
-    path[graph_size] = {MAX_INT}; // Initialize path to 0 and parent to -1 for every node.
+    path[graph_size] = new List(); // Initialize path to empty list and parent to -1 for each node.
     parent[graph_size] = {-1}; 
     Q = new List(); 
     // parent_count[graph_size] è inizializzato con il numero di padri di ogni nodo in fase di lettura del grafo
@@ -54,12 +57,14 @@ thread_nodeP(p) {
 }
 
 path (i, p) { 
-    Pri = path[p] + 1 // Let the new path be Pri
+    Pri = new List; 
+    Pri.insert(path[p]); // Pri = path[p] concateneted with p
+    Pri.insert(p) // Let the new path be Pri
     Qri = path[i]; //  Let the existing path be Qri
     
     lock();
 
-    if (Pri <= Qri) {
+    if (compare_path(Pri,Qri) < 0 ) { // Pri < Qri
         path[i] = Pri; 
         parent[i] = p;
     }
@@ -70,4 +75,19 @@ path (i, p) {
 
     unlock();
     
+} 
+
+compare_path(l_a, l_b) {
+    a = l_a.head(); 
+    b = l_b.head();
+
+    while ( a != l_a.end() && b != l_b.end() ) { 
+        if (a < b) 
+            return -1; 
+        if (a > b)
+            return 1; 
+        a++; 
+        b++; // move iterator
+    }
+
 }
