@@ -18,7 +18,7 @@
 
 // ////////////////////////////////////
 
-BFS1_bottomup_subgraph_size () {
+BFS2_bottomup_subgraph_size () {
     sub_size[graph_size] = {1}; // Initialize all sub-graph sizes to 0 -> for us 1 avoid uselles computation
     Q = new List(); 
     vector to_be_marked[graph_size] // viene usato per contare quanti altri edges di ogni padre vanno visitati, è inizializzato con il numero di figli di ogni nodo
@@ -41,7 +41,7 @@ BFS1_bottomup_subgraph_size () {
             thread_nodeC(n_p); 
         
         wait_for_all_thread(thread_nodeC);
-        Q = move(C) // Set queue Q = C for the next iteration
+        Q = move(C); // Set queue Q = C for the next iteration
                     // su C bisogna poi fare la free()
 
     }
