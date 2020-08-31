@@ -1,8 +1,8 @@
 #define FILE_TEST "dag_test.gra"
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
 
-#include "../dag.hpp"
+#include "catch.hpp"
+#include "dag.hpp"
 
 DAG dag;
 CSR csr;

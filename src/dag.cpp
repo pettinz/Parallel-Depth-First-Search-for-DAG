@@ -2,7 +2,6 @@
 #include <sstream>
 
 #include "dag.hpp"
-
 #include "spdlog/spdlog.h"
 
 void CSR::setIA(const vector<unsigned long> &v) { _IA = v; }

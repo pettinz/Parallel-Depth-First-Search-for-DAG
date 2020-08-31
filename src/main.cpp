@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-#include "spdlog/spdlog.h"
 #include "dag.hpp"
+
+#include "spdlog/spdlog.h"
 
 using namespace std;
 
