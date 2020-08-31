@@ -49,19 +49,15 @@ BFS1_bottomup_subgraph_size () {
 
 
 thread_nodeQ(i) {
-    Pi = P[n_i]; //Let Pi be a set of parents of i
-    for (each p in Pi) // for node p of Pi do in parallel
-        task(mark, p); 
-    exit_thread();
-}
-
-mark (p) { 
+    Pi = P[i]; //Let Pi be a set of parents of i -> in a DT parent is unique
 
     lock(to_be_marked);
     to_be_marked[p] -= 1; // Mark p outgoing edge (p; i) as visited
     if (to_be_marked[p] == 0)
         C.insert(p) // Insert p into C if all outgoing edges are visited
     unlock(to_be_marked); 
+
+    exit_thread();
 
 }
 
@@ -71,5 +67,7 @@ thread_nodeC(p) {
         sub += sub_size[i];   // Compute a prex-sum on Cp, obtaining cp
 
     sub_size[p] += sub; 
+
+    exit_thread(); 
         
 }
