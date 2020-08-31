@@ -19,7 +19,7 @@
 // ////////////////////////////////////
 
 BFS1_bottomup_subgraph_size () {
-    sub_size[graph_size] = {1}; // Initialize all sub-graph sizes to 1
+    sub_size[graph_size] = {1}; // Initialize all sub-graph sizes to 0 -> for us 1 avoid uselles computation
     Q = new List(); 
     vector to_be_marked[graph_size] // viene usato per contare quanti altri edges di ogni padre vanno visitati, è inizializzato con il numero di figli di ogni nodo
 
@@ -31,7 +31,7 @@ BFS1_bottomup_subgraph_size () {
     } 
 
     while (! Q.isEmpty() )  { // while Q != {} do
-        C = new Set();
+        C = new List();
         for (each n_i in Q) // for node i in Q do in parallel
             thread_nodeQ(n_i);
 
