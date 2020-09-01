@@ -1,0 +1,71 @@
+// Finally, we compute all node’s actual label pair, i.e., Lv = [sv; ev]. It essentially proceeds breadthfirst
+// on the DT, visiting it bottom-up. Each outer-rank ev is increased by 1 to obtain its final value.
+// Each inner rank sv is computed in the following way. If the vertex is a leaf, then sv = ev. If the
+// vertex is not a leaf, sv is equal to the minimum value of the post-order rank ev among the
+// descendants of v. 
+
+// Initialize all sub-graph sv and ev to post_order+1.
+// Find leafs and insert them into queue Q.
+// while Q != {} do
+//   for node i in Q do in parallel
+//       Let Pi be a set of parents of i and queue C = {}
+//       for node p of Pi do in parallel
+//           Mark p outgoing edge (p; i) as visited
+//           Insert p into C if all outgoing edges are visited
+//       end for
+//       if i is a leaf 
+//           sv = ev
+//       else 
+//           sv = min (sv) among i children 
+//   end for
+//   Set queue Q = C for the next iteration
+// end while
+
+// ////////////////////////////////////
+
+BFS4_final_labelling () {
+    inner_rank[graph_size] = {}; 
+    Q = new Queue(); 
+    vector to_be_marked[graph_size] // viene usato per contare quanti altri edges di ogni padre vanno visitati, è inizializzato con il numero di figli di ogni nodo
+
+
+    for (int i = 0; i<graph_size; i++) {
+        if (IA[i+1] - IA[i] == 0) // non ha figli -> è una foglia 
+            Q.insert(i); // Find leafs and insert them into queue Q
+        to_be_marked[i] = IA[i+1] - IA[i];
+        post_order[i] +=  1; 
+        inner_rank[i] = post_order[i]; 
+        
+    } 
+
+    while (! Q.isEmpty() )  { // while Q != {} do
+        C = new List();
+        for (each n_i in Q) // for node i in Q do in parallel
+            thread_nodeQ(n_i);
+
+        wait_for_all_thread(thread_nodeQ); 
+
+        Q = C; // Set queue Q = C for the next iteration
+    }
+} 
+
+thread_nodeQ (i) { 
+    Pi = parent[i]; //Let Pi be a set of parents of i -> in a DT parent is unique
+    min = MAX_INT; 
+
+    lock(to_be_marked);
+    to_be_marked[p] -= 1; // Mark p outgoing edge (p; i) as visited
+    if (to_be_marked[p] == 0)
+        C.insert(p) // Insert p into C if all outgoing edges are visited
+    unlock(to_be_marked);
+
+    if (IA[i+1] - IA[i] != 0) // not a leaf
+        for (int i = IA[i]; i < IA[i+1]; i++) // sv
+            if (post_order[JA[i]] < min)
+                min = post_order[JA[i]]; 
+
+    inner_rank[i] = min; 
+    exit_thread(); 
+
+
+}
