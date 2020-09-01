@@ -30,8 +30,10 @@ BFS1_topdown_dag_to_dt () {
 
 
     for (int i = 0; i<graph_size; i++) {
-        if (parent_count[i] == 0) // non ha padri -> è la root 
+        if (parent_count[i] == 0) { // non ha padri -> è la root 
             Q.insert(i); // Find roots and insert them into queue Q.
+            path[i].insert(i); 
+        }
     } 
 
     while (! Q.isEmpty() ) { 
@@ -59,16 +61,15 @@ thread_nodeP(p) {
 path (i, p) { 
     Pri = new List(copy(path[p])) // Pri = path[p] concateneted with i -> MUST COPY THE PATH
     Pri.insert(i) 
-    Qri = path[i]; 
+    
     bool new = false;
 
     //// COMPARE IS DONE OUTSIDE THE CRITICAL SECTION
-
+    lock() 
+    Qri = path[i]; 
     if ( Qri.isEmpty() || compare_path(Pri,Qri) <= 0)   // Pri < Qri
         new = true 
-
-        
-    lock();  
+  
     if (new) {
         parent[i] = p; 
         path[i] = Pri;
