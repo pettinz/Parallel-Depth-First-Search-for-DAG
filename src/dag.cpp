@@ -10,7 +10,7 @@
 
 #include "spdlog/spdlog.h"
 
-void DAG::readFromFile(const string &fileName)
+DAG DAG::fromFile(const string &fileName)
 {
     ifstream infile(fileName);
     if (!infile.is_open())
@@ -19,6 +19,7 @@ void DAG::readFromFile(const string &fileName)
         abort();
     }
 
+    DAG dag;
     string line;
     vector<unsigned long> IA, JA;
     unsigned long i, j;
@@ -28,9 +29,9 @@ void DAG::readFromFile(const string &fileName)
     IA.emplace_back(n);
 
     getline(infile, line);
-    size = stoi(line);
+    dag.size = stoi(line);
 
-    np.resize(size);
+    dag.np.resize(dag.size);
 
     while (getline(infile, line))
     {
@@ -42,15 +43,17 @@ void DAG::readFromFile(const string &fileName)
         while (iss >> j)
         {
             JA.emplace_back(j);
-            np[j]++;
+            dag.np[j]++;
             n++;
         }
 
         IA.emplace_back(n);
     }
 
-    csr.setIA(IA);
-    csr.setJA(JA);
+    dag.csr.setIA(IA);
+    dag.csr.setJA(JA);
 
     infile.close();
+
+    return dag;
 }

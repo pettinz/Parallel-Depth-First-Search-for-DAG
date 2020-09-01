@@ -38,32 +38,18 @@ void compute_path(unsigned long i, unsigned long np, vector<vector<unsigned long
         Q.push(i);
 }
 
-void fp(unsigned long np, const CSR &csr, vector<vector<unsigned long>> &path, queue<unsigned long> &Q)
-{
-    // np: nodo padre
-    // i: figlio di np
-    vector<unsigned long> IA = csr.getIA();
-    vector<unsigned long> JA = csr.getIA();
-    vector<thread> thread_pool;
-
-    for (unsigned long i = IA[np]; i < IA[np+1]; i++)
-        thread_pool.emplace_back();
-
-    for (vector<thread>::iterator it = thread_pool.begin(); it != thread_pool.end(); it++)
-        (*it).join();
-}
-
 DT DT::fromDAG(const DAG &dag)
 {
     unsigned long size = dag.get_size();
-    CSR dag_csr = dag.get_csr();
+    vector<unsigned long> IA = dag.get_csr().getIA();
+    vector<unsigned long> JA = dag.get_csr().getJA();
 
-    vector<unsigned long> parents;
+    vector<unsigned long> parent;
 
     vector<vector<unsigned long>> path(size);
     queue<unsigned long> Q;
     
-    for (int i = 0; i < size; parents.emplace_back(i++));
+    for (int i = 0; i < size; parent.emplace_back(i++));
 
     while (!Q.empty())
     {
@@ -74,7 +60,14 @@ DT DT::fromDAG(const DAG &dag)
         {
             unsigned long np = Q.front();
             Q.pop();
-            thread_pool.emplace_back(thread(fp, np, ref(dag_csr), ref(path), ref(C)));
+            thread_pool.emplace_back(thread([&, np] {
+                vector<thread> thread_pool;
+
+                for (unsigned long int i = IA[np]; i < IA[np+1]; i++)
+                    thread_pool.emplace_back(compute_path, i, np, ref(path), ref(parent), ref(Q));
+                
+                for (vector<thread>::iterator it = thread_pool.begin(); it != thread_pool.end(); (*it++).join());
+            }));
         }
         
         for (vector<thread>::iterator it = thread_pool.begin(); it != thread_pool.end(); it++)
