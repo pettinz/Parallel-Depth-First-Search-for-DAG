@@ -1,13 +1,14 @@
+#define PARALLEL_LEAF_SEARCH 0
+
 #include <fstream>
 #include <sstream>
+#include <queue>
+#include <thread>
+#include <mutex>
 
 #include "dag.hpp"
-#include "spdlog/spdlog.h"
 
-void CSR::setIA(const vector<unsigned long> &v) { _IA = v; }
-void CSR::setJA(const vector<unsigned long> &v) { _JA = v; }
-vector<unsigned long> CSR::getIA() { return _IA; }
-vector<unsigned long> CSR::getJA() { return _JA; }
+#include "spdlog/spdlog.h"
 
 void DAG::readFromFile(const string &fileName)
 {
@@ -27,7 +28,9 @@ void DAG::readFromFile(const string &fileName)
     IA.emplace_back(n);
 
     getline(infile, line);
-    _size = stoi(line);
+    size = stoi(line);
+
+    np.resize(size);
 
     while (getline(infile, line))
     {
@@ -39,16 +42,15 @@ void DAG::readFromFile(const string &fileName)
         while (iss >> j)
         {
             JA.emplace_back(j);
+            np[j]++;
             n++;
         }
 
         IA.emplace_back(n);
     }
 
-    _csr.setIA(IA);
-    _csr.setJA(JA);
+    csr.setIA(IA);
+    csr.setJA(JA);
 
     infile.close();
 }
-
-CSR DAG::getCSR() { return _csr; }

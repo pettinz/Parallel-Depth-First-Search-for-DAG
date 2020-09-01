@@ -4,28 +4,26 @@
 #include <string>
 #include <vector>
 
+#include "csr.hpp"
+
 using namespace std;
-
-class CSR {
-    vector<unsigned long> _IA, _JA;
-
-public:
-    vector<unsigned long> getIA();
-    vector<unsigned long> getJA();
-
-    void setIA(const vector<unsigned long>&);
-    void setJA(const vector<unsigned long>&);
-};
 
 class DAG
 {
-    CSR _csr;
-    unsigned long _size; 
+    CSR csr;
+    unsigned long size; 
+    unsigned long cp;
+    vector<unsigned long> np;
 
 public:
     void readFromFile(const string&);
 
-    CSR getCSR();
+    vector<unsigned long> get_np() const { return np; }
+    const unsigned long get_size() const { return size; }
+    
+    const CSR &get_csr() const { return csr; }
+
+    void subgraph_size_init();
 };
 
 #endif  // _DAG_HPP
