@@ -16,14 +16,12 @@ class DAG
     vector<unsigned long> np;
 
 public:
-    void readFromFile(const string&);
+    static DAG fromFile(const string&);
 
     vector<unsigned long> get_np() const { return np; }
     const unsigned long get_size() const { return size; }
     
     const CSR &get_csr() const { return csr; }
-
-    void subgraph_size_init();
 };
 
 #endif  // _DAG_HPP

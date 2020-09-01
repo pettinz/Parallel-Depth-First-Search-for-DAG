@@ -20,8 +20,7 @@ int main(int argc, const char *argv[])
 
     spdlog::set_level(spdlog::level::info);
 
-    DAG dag;
-    dag.readFromFile(argv[1]);
+    DAG dag = DAG::fromFile(argv[1]);
 
     return 0;
 }
