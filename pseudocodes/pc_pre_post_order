@@ -1,0 +1,73 @@
+//  Initialize pre and post-order of every node to 0.
+//  Find roots and insert them into queue Q.
+//  while Q != {} do
+//      for node p of Q do in parallel
+//          Let pre = pre-order(p)
+//          Let post= post-order(p)
+//          Let Cp be a set of children of p and queue P = {}
+//          for node i of Cp do in parallel
+//              Set pre-order(i) = pre + eps_i
+//              Set post-order(i)= post+ eps_i
+//              Mark i incoming edge (p; i) as visited
+//              Insert i into P if all incoming edges are visited
+//          end for
+//          Set pre-order(p) = pre + depth(p)
+//          Set post-order(p)= post+ Cp
+//      end for
+//      Set queue Q = P for the next iteration
+//  end while
+
+
+BFS3_topdown_pre_post_order () {
+    depth = 0; 
+    pre_order[graph_size] = {0};  //  Initialize pre and post-order of every node to 0.
+    post_order[graph_size] = {0}; 
+    Q = new Queue(); 
+
+    for (int i = 0; i<graph_size; i++) { 
+        if (parent[i] == i) // è padre di se stesso -> è la root 
+            Q.insert(i); //  Find roots and insert them into queue Q.
+    }
+
+    while (! Q.isEmpty() ) { 
+        depth++; 
+        P = new List();
+        for (each n_p in Q) //  for node p of Q do in parallel
+            thread_nodeP(n_p) ;
+
+        wait_for_all_thread(thread_nodeP); 
+        Q = P; // Set queue Q = P for the next iteration
+
+} 
+
+
+
+thread_nodeP (p) { 
+    pre = pre_order[p]; 
+    post = post_order[p]; 
+
+    for (i = IA[p], i<IA[p+1], i++) // Let Cp be a set of children of p 
+        thread_nodeC( JA[i] ) // for node i of Cp do in parallel
+
+    wait_for_all_thread(thread_nodeC); 
+
+    pre_order[p] = pre + depth; // Set pre-order(p) = pre + depth(p) 
+                                // procediamo dalla root (depth=1) e ogni iterazione scendiamo di un livello : depth aumenta di uno ad ogni iterazione del while
+    post_order[p] = post + sub_size[p] // Set post-order(p)= post+ Cp
+
+    exit_thread(); 
+
+} 
+
+thread_nodeC (i) {
+
+    // in un DT ogni nodo ha un solo padre
+    // thread_nodeC[i] viene chiamato una sola volta per ogni i -> non c'è bisogno di lock per modificare il vettore
+    pre_order[i] = pre + presum[i]; //   Set pre-order(i) = pre + eps_i
+    post_order[i] = post + presum[i] // Set post-order(i)= post+ eps_i
+
+    P.insert(i)    // Insert i into P if all incoming edges are visited
+                    // un solo padre -> un solo incoming edge
+
+
+} 
