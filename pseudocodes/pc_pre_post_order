@@ -19,7 +19,7 @@
 
 
 BFS3_topdown_pre_post_order () {
-    depth = 1; 
+    depth = 0; 
     pre_order[graph_size] = {0};  //  Initialize pre and post-order of every node to 0.
     post_order[graph_size] = {0}; 
     Q = new Queue(); 
@@ -53,7 +53,7 @@ thread_nodeP (p) {
 
     pre_order[p] = pre + depth; // Set pre-order(p) = pre + depth(p) 
                                 // procediamo dalla root (depth=1) e ogni iterazione scendiamo di un livello : depth aumenta di uno ad ogni iterazione del while
-    post_order[p] = post + sub_size[p] // Set post-order(p)= post+ Cp
+    post_order[p] = post + sub_size[p] - 1;  // Set post-order(p)= post+ Cp
 
     exit_thread(); 
 
