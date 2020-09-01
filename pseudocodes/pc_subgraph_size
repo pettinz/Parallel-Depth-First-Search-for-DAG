@@ -20,6 +20,7 @@
 
 BFS2_bottomup_subgraph_size () {
     sub_size[graph_size] = {1}; // Initialize all sub-graph sizes to 0 -> for us 1 avoid uselles computation
+    presum[graph_size] = {0}
     Q = new List(); 
     vector to_be_marked[graph_size] // viene usato per contare quanti altri edges di ogni padre vanno visitati, è inizializzato con il numero di figli di ogni nodo
 
@@ -49,7 +50,7 @@ BFS2_bottomup_subgraph_size () {
 
 
 thread_nodeQ(i) {
-    Pi = P[i]; //Let Pi be a set of parents of i -> in a DT parent is unique
+    Pi = parent[i]; //Let Pi be a set of parents of i -> in a DT parent is unique
 
     lock(to_be_marked);
     to_be_marked[p] -= 1; // Mark p outgoing edge (p; i) as visited
@@ -63,8 +64,10 @@ thread_nodeQ(i) {
 
 thread_nodeC(p) {
     int sub = 0;
-    for (int i = IA[p]; i < IA[p+1]; i++) // Let Cp be an ordered set of children of node p
+    for (int i = IA[p]; i < IA[p+1]; i++) { // Let Cp be an ordered set of children of node p
         sub += sub_size[i];   // Compute a prex-sum on Cp, obtaining cp
+        presum[i] = sub-1; 
+    }
 
     sub_size[p] += sub; 
 
