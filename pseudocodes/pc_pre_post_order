@@ -19,7 +19,7 @@
 
 
 BFS3_topdown_pre_post_order () {
-    depth = 0; 
+    depth = 1; 
     pre_order[graph_size] = {0};  //  Initialize pre and post-order of every node to 0.
     post_order[graph_size] = {0}; 
     Q = new Queue(); 
@@ -30,13 +30,13 @@ BFS3_topdown_pre_post_order () {
     }
 
     while (! Q.isEmpty() ) { 
-        depth++; 
         P = new List();
         for (each n_p in Q) //  for node p of Q do in parallel
             thread_nodeP(n_p) ;
 
         wait_for_all_thread(thread_nodeP); 
         Q = P; // Set queue Q = P for the next iteration
+        depth++; 
 
 } 
 

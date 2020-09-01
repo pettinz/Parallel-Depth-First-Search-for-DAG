@@ -64,9 +64,12 @@ thread_nodeQ(i) {
 
 thread_nodeC(p) {
     int sub = 0;
+    int j = 0;
     for (int i = IA[p]; i < IA[p+1]; i++) { // Let Cp be an ordered set of children of node p
         sub += sub_size[i];   // Compute a prex-sum on Cp, obtaining cp
-        presum[i] = sub-1; 
+        if (j>0)
+            presum[i] += subsize[i-1];
+        j ++;
     }
 
     sub_size[p] += sub; 
