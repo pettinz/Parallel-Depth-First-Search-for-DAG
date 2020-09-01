@@ -49,7 +49,7 @@ BFS1_topdown_dag_to_dt () {
 
 thread_nodeP(p) {
     for (int i = IA[p]; i < IA[p+1]; i++) // Let Cp be a set of children of node p
-        task(path, i, p); // for node i of Cp do in parallel    
+        task(path, JA[i], p); // for node i of Cp do in parallel    
 
     wait_all_task();
     exit_thread(); 
@@ -64,22 +64,19 @@ path (i, p) {
 
     //// COMPARE IS DONE OUTSIDE THE CRITICAL SECTION
 
-    if ( Qri.isEmpty() ) 
-        Qri = Pri; 
-    else if (compare_path(Pri,Qri) < 0 ) { // Pri < Qri
-        Qri = Pri; 
-        new = true;
-    }
+    if ( Qri.isEmpty() || compare_path(Pri,Qri) <= 0)   // Pri < Qri
+        new = true 
+
         
-
-    lock();
-
-    path[i] = Qri
-    if (new) parent[i] = p; 
+    lock();  
+    if (new) {
+        parent[i] = p; 
+        path[i] = Pri;
+    }
 
     parent_count[i] -= 1; // Mark i incoming edge (p; i) as visited
     if (parent_count[i] == 0) 
-        P.insert(i); // Insert i into P if all incoming edges are visited
+        C.insert(i); // Insert i into P if all incoming edges are visited
 
     unlock();
     
