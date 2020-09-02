@@ -22,7 +22,7 @@
 // end while
 
 // ////////////////////////////////////
-
+///////////// BISOGNA USARE IL DAG (con la sua CSR) : anche se nel DT abbiamo scartato alcuni vertici qui bisogna considerare tutti i figli di ogni nodo, senza scarti! 
 BFS4_final_labelling () {
     inner_rank[graph_size] = {}; 
     Q = new Queue(); 

@@ -71,6 +71,8 @@ path (i, p) {
         new = true 
   
     if (new) {
+        if (IA[p+1] - IA[p] == 1) // ha il padre ha un solo figlio -> (i) è inutile nel path 
+            Pri.remove(i) 
         parent[i] = p; 
         path[i] = Pri;
     }
