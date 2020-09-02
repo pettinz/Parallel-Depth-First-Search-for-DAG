@@ -30,8 +30,10 @@ BFS1_topdown_dag_to_dt () {
 
 
     for (int i = 0; i<graph_size; i++) {
-        if (parent_count[i] == 0) // non ha padri -> è la root 
+        if (parent_count[i] == 0) { // non ha padri -> è la root 
             Q.insert(i); // Find roots and insert them into queue Q.
+            path[i].insert(i); 
+        }
     } 
 
     while (! Q.isEmpty() ) { 
@@ -44,6 +46,17 @@ BFS1_topdown_dag_to_dt () {
                     // su C bisogna poi fare la free()
 
     } 
+
+    // CSR RECONSTRUCTION 
+    pos = 0; 
+    for (i=0; i<graph_size; i++) {
+        IA[i] = pos; 
+        for (j=0;j<graph_size, j++)
+            if (i == parent[j] && i!=j) {
+                JA[pos] = j;
+                pos++;
+            }
+    }
 }
 
 
@@ -57,19 +70,21 @@ thread_nodeP(p) {
 }
 
 path (i, p) { 
+
+    lock() 
     Pri = new List(copy(path[p])) // Pri = path[p] concateneted with i -> MUST COPY THE PATH
     Pri.insert(i) 
-    Qri = path[i]; 
+    
     bool new = false;
 
-    //// COMPARE IS DONE OUTSIDE THE CRITICAL SECTION
 
+    Qri = path[i]; 
     if ( Qri.isEmpty() || compare_path(Pri,Qri) <= 0)   // Pri < Qri
         new = true 
-
-        
-    lock();  
+  
     if (new) {
+        if (IA[p+1] - IA[p] == 1) // ha il padre ha un solo figlio -> (i) è inutile nel path 
+            Pri.remove(i) 
         parent[i] = p; 
         path[i] = Pri;
     }

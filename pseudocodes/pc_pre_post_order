@@ -30,13 +30,13 @@ BFS3_topdown_pre_post_order () {
     }
 
     while (! Q.isEmpty() ) { 
-        depth++; 
         P = new List();
         for (each n_p in Q) //  for node p of Q do in parallel
             thread_nodeP(n_p) ;
 
         wait_for_all_thread(thread_nodeP); 
         Q = P; // Set queue Q = P for the next iteration
+        depth++; 
 
 } 
 
@@ -53,7 +53,7 @@ thread_nodeP (p) {
 
     pre_order[p] = pre + depth; // Set pre-order(p) = pre + depth(p) 
                                 // procediamo dalla root (depth=1) e ogni iterazione scendiamo di un livello : depth aumenta di uno ad ogni iterazione del while
-    post_order[p] = post + sub_size[p] // Set post-order(p)= post+ Cp
+    post_order[p] = post + sub_size[p] - 1;  // Set post-order(p)= post+ Cp
 
     exit_thread(); 
 
