@@ -4,14 +4,13 @@
 #include <string>
 #include <vector>
 
-#include "csr.hpp"
 #include "node.h"
 
 using namespace std;
 
 class DAG
 {
-    CSR csr;
+    vector<unsigned long> IA, JA;
     unsigned long size;
     unsigned long cp;
     vector<node> np;
@@ -22,7 +21,8 @@ public:
     const vector<node> &get_np() const { return np; }
     const unsigned long get_size() const { return size; }
 
-    const CSR &get_csr() const { return csr; }
+    const vector<unsigned long> &getIA() const { return IA; }
+    const vector<unsigned long> &getJA() const { return JA; }
 };
 
 #endif // _DAG_HPP

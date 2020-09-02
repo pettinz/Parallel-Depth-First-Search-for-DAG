@@ -1,5 +1,7 @@
 #define PARALLEL_LEAF_SEARCH 0
 
+#include <fstream>
+#include <sstream>
 #include <queue>
 #include <thread>
 #include <mutex>
@@ -8,7 +10,7 @@
 
 #include "spdlog/spdlog.h"
 
-DAG::DAG(const string &fileName) : size(0)
+DAG::DAG(const string &fileName)
 {
     ifstream infile(fileName);
     if (!infile.is_open())
@@ -18,8 +20,6 @@ DAG::DAG(const string &fileName) : size(0)
     }
 
     string line;
-    vector<unsigned long> IA;
-    vector<node> JA;
     unsigned long i, j;
     unsigned long n;
 
@@ -47,8 +47,6 @@ DAG::DAG(const string &fileName) : size(0)
 
         IA.emplace_back(n);
     }
-
-    csr = CSR(IA, JA);
 
     infile.close();
 }
