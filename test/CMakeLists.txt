@@ -3,6 +3,7 @@ project(Parallel-Depth-First-Search-for-DAG)
 
 include_directories(include)
 
+<<<<<<< Updated upstream
 set(DAG_TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/dag_test.cpp
     ../src/dag.cpp
@@ -15,6 +16,14 @@ set(DT_TEST_SOURCES
 )
 
 add_executable(dag_test ${DAG_TEST_SOURCES})
+=======
+set(SOURCES
+    ../src/dag.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dag_test.cpp
+)
+
+add_executable(dag_test ${SOURCES})
+>>>>>>> Stashed changes
 target_link_libraries(dag_test spdlog::spdlog)
 
 add_executable(dt_test ${DT_TEST_SOURCES})

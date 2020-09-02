@@ -15,6 +15,10 @@ set(SOURCES
 )
 
 add_executable(main src/main.cpp ${SOURCES})
+<<<<<<< Updated upstream
 target_link_libraries(main PRIVATE spdlog::spdlog Threads::Threads ThreadPool::ThreadPool)
+=======
+target_link_libraries(main PRIVATE spdlog::spdlog Threads::Threads)
+>>>>>>> Stashed changes
 
 add_subdirectory(test)
