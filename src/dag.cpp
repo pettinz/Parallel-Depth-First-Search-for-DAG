@@ -1,10 +1,5 @@
 #define PARALLEL_LEAF_SEARCH 0
 
-<<<<<<< Updated upstream
-=======
-#include <fstream>
-#include <sstream>
->>>>>>> Stashed changes
 #include <queue>
 #include <thread>
 #include <mutex>
@@ -53,12 +48,7 @@ DAG::DAG(const string &fileName) : size(0)
         IA.emplace_back(n);
     }
 
-<<<<<<< Updated upstream
     csr = CSR(IA, JA);
-=======
-    csr.setIA(IA);
-    csr.setJA(JA);
->>>>>>> Stashed changes
 
     infile.close();
 }
