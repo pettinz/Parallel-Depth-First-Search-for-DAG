@@ -4,7 +4,6 @@
 #include <vector>
 #include <mutex>
 
-#include "csr.hpp"
 #include "dag.hpp"
 #include "node.h"
 
@@ -12,16 +11,16 @@ using namespace std;
 
 class DT
 {
+    vector<unsigned long> IA, JA;
     unsigned long size;
-    vector<node> parent;
-    CSR csr;
+    vector<node> parents;
     node root;
     vector<mutex> mutexes;
 
 public:
     DT(const DAG &);
 
-    const vector<node> &getParent() const { return parent; }
+    const vector<node> &getParent() const { return parents; }
 };
 
 #endif //_DT_HPP

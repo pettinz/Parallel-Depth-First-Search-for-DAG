@@ -4,78 +4,86 @@
 #include <future>
 #include "spdlog/spdlog.h"
 
+#include "threadpool.hpp"
+
 #include "dt.hpp"
 
+ThreadPool threadpool(thread::hardware_concurrency());
+
 long long cmppath(const vector<unsigned long> &, const vector<unsigned long> &);
-void compute_path(node, node, vector<vector<node>> &, vector<node> &, vector<unsigned long> &, queue<node> &, mutex &m);
-void fp();
 
-DT::DT(const DAG &dag)
+DT::DT(const DAG &dag) : size(dag.get_size()), parents(size), mutexes(size)
 {
-    size = dag.get_size();
-    parent.resize(size);
-    mutexes = vector<mutex>(size);
+    const vector<unsigned long> &IA_dag = dag.getIA();
+    const vector<unsigned long> &JA_dag = dag.getJA();
 
-    const vector<unsigned long> &IA = dag.get_csr().getIA();
-    const vector<unsigned long> &JA = dag.get_csr().getJA();
-
-    vector<unsigned long> parentCount = dag.get_np();
+    vector<unsigned long> parentsCount = dag.get_np();
 
     vector<vector<node>> path(size);
     queue<node> Q;
 
     for (unsigned long i = 0; i < size; i++)
     {
-        if (parentCount[i] == 0)
+        if (parentsCount[i] == 0)
             Q.push(i);
 
-        parent[i] = i;
+        parents[i] = i;
     }
 
     while (!Q.empty())
     {
-        queue<node> C;
+        queue<node> P;
+        vector<future<void>> tasks;
 
         while (!Q.empty())
         {
             unsigned long p = Q.front();
             Q.pop();
 
-            vector<thread> tasks[2];
+            tasks.emplace_back(threadpool.enqueue([&, p] {
+                vector<future<void>> tasks;
 
-            tasks[0].emplace_back(thread([&, p] {
-                for (unsigned long int i = IA[p]; i < IA[p + 1]; i++)
-                    tasks[1].emplace_back(thread([&, p](node i) {
+                for (unsigned long int i = IA_dag[p]; i < IA_dag[p + 1]; i++)
+                    tasks.emplace_back(threadpool.enqueue([&, p](node i) {
                         unique_lock<mutex> l{mutexes[i]};
+                        spdlog::info("Parent {} of child {}", p, i);
 
                         vector<node> pri = path[p];
                         vector<node> &qri = path[i];
-                        bool update;
 
                         pri.emplace_back(i);
 
-                        update = (qri.empty() || cmppath(pri, qri) <= 0);
-
-                        if (update)
+                        if (cmppath(pri, qri) <= 0)
                         {
-                            parent[i] = p;
-                            path[i] = pri;
+                            parents[i] = p;
+                            qri = pri;
                         }
 
-                        if (--parentCount[i] == 0)
-                            C.push(i);
+                        if (--parentsCount[i] == 0)
+                            P.push(i);
                     },
-                                                 JA[i]));
+                                                          JA_dag[i]));
 
-                for (auto &t : tasks[1])
-                    t.join();
+                for (auto &t : tasks)
+                    t.get();
             }));
-
-            for (auto &t : tasks[0])
-                t.join();
         }
 
-        swap(Q, C);
+        for (auto &t : tasks)
+            t.get();
+
+        Q = move(P);
+    }
+
+    for (unsigned long i = 0, pos = 0; i < parents.size();
+         IA.emplace_back(pos), i++)
+    {
+        for (unsigned long j = 0; j < parents.size(); j++)
+            if (i == parents[j] && i != j)
+            {
+                JA.emplace_back(j);
+                pos++;
+            }
     }
 }
 
@@ -91,8 +99,4 @@ long long cmppath(const vector<unsigned long> &a, const vector<unsigned long> &b
     }
 
     return 0;
-}
-
-void compute_path(node i, node p, vector<vector<node>> &path, vector<node> &parent, vector<unsigned long> &parentCount, queue<node> &P, mutex &m)
-{
 }
