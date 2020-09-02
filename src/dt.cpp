@@ -83,10 +83,11 @@ long long cmppath(const vector<unsigned long> &a, const vector<unsigned long> &b
 {
     for (auto ita = a.begin(), itb = b.begin(); ita != a.end() && itb != b.end(); ita++, itb++)
     {
-        if (*ita == *itb)
-            continue;
+        if (*ita > *itb)
+            return 1;
 
-        return (*ita) - (*itb);
+        if (*ita < *itb)
+            return -1;
     }
 
     return 0;
