@@ -15,6 +15,6 @@ set(SOURCES
 )
 
 add_executable(main src/main.cpp ${SOURCES})
-target_link_libraries(main PRIVATE spdlog::spdlog Threads::Threads)
+target_link_libraries(main PRIVATE spdlog::spdlog Threads::Threads ThreadPool::ThreadPool)
 
 add_subdirectory(test)

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "dag.hpp"
+#include "dt.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -20,7 +21,10 @@ int main(int argc, const char *argv[])
 
     spdlog::set_level(spdlog::level::info);
 
-    DAG dag = DAG::fromFile(argv[1]);
+    DAG dag(argv[1]);
+    DT dt(dag);
+
+    spdlog::info("DT generated");
 
     return 0;
 }
@@ -28,5 +32,6 @@ int main(int argc, const char *argv[])
 void usage(const char *progName)
 {
     cout << "usage: ";
-    cout << progName << " file1 file2" << endl << endl;
+    cout << progName << " file1 file2" << endl
+         << endl;
 }

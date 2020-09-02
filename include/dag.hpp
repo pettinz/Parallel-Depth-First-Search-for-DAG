@@ -5,23 +5,24 @@
 #include <vector>
 
 #include "csr.hpp"
+#include "node.h"
 
 using namespace std;
 
 class DAG
 {
     CSR csr;
-    unsigned long size; 
+    unsigned long size;
     unsigned long cp;
-    vector<unsigned long> np;
+    vector<node> np;
 
 public:
-    static DAG fromFile(const string&);
+    DAG(const string &);
 
-    vector<unsigned long> get_np() const { return np; }
+    const vector<node> &get_np() const { return np; }
     const unsigned long get_size() const { return size; }
-    
+
     const CSR &get_csr() const { return csr; }
 };
 
-#endif  // _DAG_HPP
+#endif // _DAG_HPP
