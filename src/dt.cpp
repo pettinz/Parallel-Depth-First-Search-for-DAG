@@ -6,7 +6,7 @@
 
 #include "dt.hpp"
 
-unsigned long cmppath(const vector<unsigned long> &, const vector<unsigned long> &);
+long long cmppath(const vector<unsigned long> &, const vector<unsigned long> &);
 void compute_path(node, node, vector<vector<node>> &, vector<node> &, vector<unsigned long> &, queue<node> &, mutex &m);
 void fp();
 
@@ -79,7 +79,7 @@ DT::DT(const DAG &dag)
     }
 }
 
-unsigned long cmppath(const vector<unsigned long> &a, const vector<unsigned long> &b)
+long long cmppath(const vector<unsigned long> &a, const vector<unsigned long> &b)
 {
     for (auto ita = a.begin(), itb = b.begin(); ita != a.end() && itb != b.end(); ita++, itb++)
     {
