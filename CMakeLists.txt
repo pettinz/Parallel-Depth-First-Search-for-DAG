@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(Parallel-Depth-First-Search-for-DAG)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(libs)
 
@@ -15,6 +15,10 @@ set(SOURCES
 )
 
 add_executable(main src/main.cpp ${SOURCES})
-target_link_libraries(main PRIVATE spdlog::spdlog Threads::Threads ThreadPool::ThreadPool)
+target_link_libraries(main PRIVATE
+    spdlog::spdlog
+    Threads::Threads
+    ThreadPool::ThreadPool
+    ThreadSafe::Queue)
 
 add_subdirectory(test)

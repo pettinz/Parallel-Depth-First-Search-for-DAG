@@ -3,3 +3,4 @@ project(Parallel-Depth-First-Search-for-DAG)
 
 add_subdirectory(spdlog)
 add_subdirectory(threadpool)
+add_subdirectory(threadsafe_queue)

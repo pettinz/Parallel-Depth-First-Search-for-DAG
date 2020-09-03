@@ -2,7 +2,9 @@
 #include <thread>
 #include <mutex>
 #include <future>
+#include <optional>
 #include "spdlog/spdlog.h"
+#include "threadsafe_queue.hpp"
 
 #include "threadpool.hpp"
 
@@ -11,6 +13,8 @@
 ThreadPool threadpool(thread::hardware_concurrency());
 
 long long cmppath(const vector<unsigned long> &, const vector<unsigned long> &);
+
+mutex qm;
 
 DT::DT(const DAG &dag) : size(dag.get_size()), parents(size), mutexes(size)
 {
@@ -32,7 +36,7 @@ DT::DT(const DAG &dag) : size(dag.get_size()), parents(size), mutexes(size)
 
     while (!Q.empty())
     {
-        queue<node> P;
+        threadsafe::queue<unsigned long> P;
         vector<future<void>> tasks;
 
         while (!Q.empty())
@@ -45,8 +49,7 @@ DT::DT(const DAG &dag) : size(dag.get_size()), parents(size), mutexes(size)
 
                 for (unsigned long int i = IA_dag[p]; i < IA_dag[p + 1]; i++)
                     tasks.emplace_back(threadpool.enqueue([&, p](node i) {
-                        unique_lock<mutex> l{mutexes[i]};
-                        spdlog::info("Parent {} of child {}", p, i);
+                        lock_guard<mutex> lock(mutexes[i]);
 
                         vector<node> pri = path[p];
                         vector<node> &qri = path[i];
@@ -65,14 +68,15 @@ DT::DT(const DAG &dag) : size(dag.get_size()), parents(size), mutexes(size)
                                                           JA_dag[i]));
 
                 for (auto &t : tasks)
-                    t.get();
+                    t.wait();
             }));
         }
 
         for (auto &t : tasks)
-            t.get();
+            t.wait();
 
-        Q = move(P);
+        while (!P.empty())
+            Q.push(P.pop().value());
     }
 
     for (unsigned long i = 0, pos = 0; i < parents.size();

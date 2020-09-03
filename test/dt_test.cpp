@@ -102,8 +102,10 @@ TEST_CASE("DT::fromDAG", "dt")
 {
     const string DAG_TEST_FILE = "dag_test.gra";
 
-    DAG dag(DAG_TEST_FILE);
-    DT dt(dag);
-
-    REQUIRE(dt.getParent() == vector<node>{0, 0, 0, 1, 1, 2, 4});
+    for (int i = 0; i < 1000; i++)
+    {
+        DAG dag(DAG_TEST_FILE);
+        DT dt(dag);
+        REQUIRE(dt.getParent() == vector<node>{0, 0, 0, 1, 1, 2, 4});
+    }
 }

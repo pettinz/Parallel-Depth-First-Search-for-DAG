@@ -18,6 +18,10 @@ add_executable(dag_test ${DAG_TEST_SOURCES})
 target_link_libraries(dag_test spdlog::spdlog)
 
 add_executable(dt_test ${DT_TEST_SOURCES})
-target_link_libraries(dt_test spdlog::spdlog ThreadPool::ThreadPool)
+target_link_libraries(dt_test
+    spdlog::spdlog
+    ThreadPool::ThreadPool
+    ThreadSafe::Queue
+)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dag_test.gra ${CMAKE_CURRENT_BINARY_DIR}/dag_test.gra COPYONLY)
