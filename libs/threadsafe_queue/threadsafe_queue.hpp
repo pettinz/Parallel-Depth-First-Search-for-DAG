@@ -33,7 +33,7 @@ namespace threadsafe
             if (!empty())
                 throw queue_error("moving into a non-empty queue");
 
-            queue_ = std::move(other.queue);
+            queue_ = std::move(other.queue_);
         }
 
         virtual ~queue() noexcept(false)
