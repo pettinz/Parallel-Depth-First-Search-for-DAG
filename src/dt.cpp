@@ -75,8 +75,7 @@ DT::DT(const DAG &dag) : size(dag.get_size()), parents(size), mutexes(size)
         for (auto &t : tasks)
             t.wait();
 
-        while (!P.empty())
-            Q.push(P.pop().value());
+        P.swap(Q);
     }
 
     for (unsigned long i = 0, pos = 0; i < parents.size();
