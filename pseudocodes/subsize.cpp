@@ -1,9 +1,11 @@
-vector<unsigned long> subgraph_size;
-void compute_subgraph_size(); 
-
+// HPP
+    void compute_subgraph_size();
+    vector<unsigned long> subgraph_size;
+    vector<unsigned long> presum;
+// CPP
 void DT::compute_subgraph_size () { 
     subgraph_size = vector<unsigned long>(size, 1);
-    vector<unsigned long> presum = vector<unsigned long>(size, 0);
+    presum = vector<unsigned long>(size, 0);
     vector<unsigned long> to_be_marked = vector<unsigned long>(size);
     queue<node> Q; 
  
@@ -16,7 +18,7 @@ void DT::compute_subgraph_size () {
 
     while (!Q.empty())
     {
-        threadsafe::queue<unsigned long> C;
+        threadsafe::queue<unsigned long> C, L;
         vector<future<void>> tasksQ;
         vector<future<void>> tasksC;
 
@@ -29,19 +31,19 @@ void DT::compute_subgraph_size () {
                 unsigned long p = parents[i]; 
                 lock_guard<mutex> lock(mutexes[p]);
 
-                if (--to_be_marked[p] == 0)
-                    C.push(i);      
+                if (--to_be_marked[p] == 0) {
+                    C.push(i);  
+                    L.push(i);      
+                }   
             }));
 
         }
-
+        
         for (auto &t : tasksQ)
             t.wait();
 
-        // NOPE SERVE UN ITERATORE! 
         while (!C.empty()) {
-            unsigned long p = C.front();
-            C.pop();
+            unsigned long p = C.pop().value();
 
             tasksC.emplace_back(threadpool.enqueue([&, p] {            
                 unsigned long sub = 0; 
@@ -59,7 +61,7 @@ void DT::compute_subgraph_size () {
         for (auto &t : tasksC)
             t.wait();
         
-        C.swap(Q);
+        L.swap(Q);
     } 
 
 }
