@@ -24,4 +24,9 @@ target_link_libraries(dt_test
     ThreadSafe::Queue
 )
 
+add_executable(subgraph_test ${CMAKE_CURRENT_SOURCE_DIR}/subgraph_size_test.cpp)
+target_link_libraries(dt_test
+    spdlog::spdlog
+)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dag_test.gra ${CMAKE_CURRENT_BINARY_DIR}/dag_test.gra COPYONLY)
