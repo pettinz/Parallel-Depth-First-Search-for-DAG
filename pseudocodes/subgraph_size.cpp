@@ -42,9 +42,9 @@ void thread_nodeC(node p)
     unsigned long j = 0;
     for (unsigned long i = IA[p]; i < IA[p + 1]; i++)
     {
-        sub += subgraph_size[i];
+        sub += subgraph_size[JA[i]];
         if (j > 0)
-            presum[i] += subgraph_size[i - 1];
+            presum[JA[i]] += subgraph_size[JA[i-1]];
         j++;
     }
     subgraph_size[p] += sub;

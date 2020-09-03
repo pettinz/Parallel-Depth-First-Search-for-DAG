@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <queue>
+#include <spdlog/spdlog.h>
 
 typedef unsigned long node;
 
@@ -35,12 +36,13 @@ void thread_nodeC(node p)
     unsigned long j = 0;
     for (unsigned long i = IA[p]; i < IA[p + 1]; i++)
     {
-        sub += subgraph_dt_size[i];
+        sub += subgraph_dt_size[JA[i]];
         if (j > 0)
-            presum[i] += subgraph_dt_size[i - 1];
+            presum[JA[i]] += subgraph_dt_size[JA[i-1]];
         j++;
     }
-    subgraph_dt_size[p] += sub;
+    subgraph_dt_size[p] += sub; 
+
 }
 
 void compute_subgraph_size()
@@ -53,7 +55,8 @@ void compute_subgraph_size()
     for (int i = 0; i < dt_size; i++)
     {
         if (IA[i + 1] - IA[i] == 0)
-            Q.push(i);
+            Q.push(i); 
+        
         to_be_marked[i] = IA[i + 1] - IA[i];
     }
 
@@ -84,8 +87,8 @@ void compute_subgraph_size()
 TEST_CASE("compute_subgraph_size", "dt")
 {
     dt_size = 7;
-    IA = vector<unsigned long>{0, 2, 4, 6, 6, 7, 8, 8};
-    JA = vector<unsigned long>{1, 2, 3, 4, 4, 5, 6, 6};
+    IA = vector<unsigned long>{0, 2, 4, 5, 5, 6, 6, 6};
+    JA = vector<unsigned long>{1, 2, 3, 4, 5, 6};
     parents = vector<node>{0, 0, 0, 1, 1, 2, 4};
 
     compute_subgraph_size();
