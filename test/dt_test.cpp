@@ -98,14 +98,49 @@ TEST_CASE( "compute_path", "[dag]" ) {
 }
 */
 
+const string DAG_TEST_FILE = "dag_test.gra";
+DAG dag(DAG_TEST_FILE);
+
 TEST_CASE("DT::fromDAG", "dt")
 {
-    const string DAG_TEST_FILE = "dag_test.gra";
+    for (int i = 0; i < 1000; i++)
+    {
+        DT dt(dag);
+        REQUIRE(dt.getIA() == vector<unsigned long>{0, 2, 4, 5, 5, 6, 6, 6});
+        REQUIRE(dt.getJA() == vector<unsigned long>{1, 2, 3, 4, 5, 6});
+        REQUIRE(dt.getParent() == vector<node>{0, 0, 0, 1, 1, 2, 4});
+    }
+}
+
+TEST_CASE("DT::computeNodeSize", "dt")
+{
+    DT dt(dag);
+
+    vector<node> nodeSize;
+    vector<node> presum;
 
     for (int i = 0; i < 1000; i++)
     {
-        DAG dag(DAG_TEST_FILE);
-        DT dt(dag);
-        REQUIRE(dt.getParent() == vector<node>{0, 0, 0, 1, 1, 2, 4});
+        dt.computeNodeSize(nodeSize, presum);
+
+        REQUIRE(nodeSize == vector<node>{7, 4, 2, 1, 2, 1, 1});
+        REQUIRE(presum == vector<node>{0, 0, 4, 0, 1, 0, 0});
+    }
+}
+
+TEST_CASE("DT::computeOrder", "dt")
+{
+    DT dt(dag);
+
+    vector<node> nodeSize = {7, 4, 2, 1, 2, 1, 1};
+    vector<node> presum = {0, 0, 4, 0, 1, 0, 0};
+    vector<unsigned long> preOrder, postOrder;
+
+    for (int i = 0; i < 1000; i++)
+    {
+        dt.computeOrder(preOrder, postOrder, nodeSize, presum);
+
+        REQUIRE(preOrder == vector<node>{0, 1, 5, 2, 3, 6, 4});
+        REQUIRE(postOrder == vector<node>{6, 3, 5, 0, 2, 4, 1});
     }
 }

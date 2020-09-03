@@ -18,9 +18,14 @@ class DT
     vector<mutex> mutexes;
 
 public:
-    DT(const DAG &);
+    explicit DT(const DAG &);
 
     const vector<node> &getParent() const { return parents; }
+    const vector<unsigned long> &getIA() const { return IA; }
+    const vector<unsigned long> &getJA() const { return JA; }
+
+    void computeNodeSize(vector<node> &nodeSize, vector<node> &presum);
+    void computeOrder(vector<unsigned long> &preOrder, vector<unsigned long> &postOrdedr, const vector<node> &nodeSize, const vector<node> &presum);
 };
 
 #endif //_DT_HPP
