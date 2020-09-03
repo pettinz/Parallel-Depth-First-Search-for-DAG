@@ -17,13 +17,16 @@ vector<node> parents;
 
 // CPP
 
-void thread_nodeQ(node i, vector<node> &to_be_marked, queue<node> &C)
+void thread_nodeQ(node i, vector<node> &to_be_marked, queue<node> &C, queue<node> &L)
 {
     unsigned long p = parents[i];
     // lock_guard<mutex> lock(mutexes[p]);
 
     if (--to_be_marked[p] == 0)
+    {
         C.push(p);
+        L.push(p);
+    }
 }
 
 void thread_nodeC(node p)
@@ -63,13 +66,13 @@ void compute_subgraph_size()
             unsigned long p = Q.front();
             Q.pop();
 
-            thread_nodeQ(p, to_be_marked, Q);
+            thread_nodeQ(p, to_be_marked, Q, L);
         }
 
-        while (!C.empty())
+        while (!L.empty())
         {
-            unsigned long p = C.front();
-            C.pop();
+            unsigned long p = L.front();
+            L.pop();
 
             thread_nodeC(p);
         }

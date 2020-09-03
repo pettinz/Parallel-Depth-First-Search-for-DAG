@@ -25,7 +25,7 @@ target_link_libraries(dt_test
 )
 
 add_executable(subgraph_test ${CMAKE_CURRENT_SOURCE_DIR}/subgraph_size_test.cpp)
-target_link_libraries(dt_test
+target_link_libraries(subgraph_test
     spdlog::spdlog
 )
 
