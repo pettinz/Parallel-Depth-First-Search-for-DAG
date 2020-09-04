@@ -3,7 +3,7 @@
 
 #define TEST_FILE "v20e15.gra"
 
-#define test_V unsigned long 20
+#define test_V 20
 #define test_IA \
     vector<unsigned long> { 0, 2, 5, 8, 9, 9, 12, 15, 18, 20, 20, 21, 22, 23, 26, 28, 28, 28, 28, 29, 29 }
 #define test_JA \
