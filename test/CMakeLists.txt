@@ -1,27 +1,18 @@
 cmake_minimum_required(VERSION 3.5)
-project(Parallel-Depth-First-Search-for-DAG)
+project(Parallel-Depth-First-Search-for-DAG-tests)
 
 include_directories(include)
 
-set(DAG_TEST_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/dag_test.cpp
-    ../src/dag.cpp
+set(SOURCES
+    ${CMAKE_SOURCE_DIR}/src/dag.cpp
 )
-
-set(DT_TEST_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/dt_test.cpp
-    ../src/dag.cpp
-    ../src/dt.cpp
-)
-
-add_executable(dag_test ${DAG_TEST_SOURCES})
-target_link_libraries(dag_test spdlog::spdlog)
-
-add_executable(dt_test ${DT_TEST_SOURCES})
-target_link_libraries(dt_test
+add_executable(test test.cpp ${SOURCES})
+target_link_libraries(test 
     spdlog::spdlog
     ThreadPool::ThreadPool
     ThreadSafe::Queue
 )
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dag_test.gra ${CMAKE_CURRENT_BINARY_DIR}/dag_test.gra COPYONLY)
+file(GLOB GRA_FILES "gra/*.gra")
+message(STATUS "Graph files copied into " ${PROJECT_BINARY_DIR})
+file(COPY ${GRA_FILES} DESTINATION ${PROJECT_BINARY_DIR})
