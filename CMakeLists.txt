@@ -11,7 +11,6 @@ find_package( Threads REQUIRED )
 
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dag.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/dt.cpp
 )
 
 add_executable(main src/main.cpp ${SOURCES})

@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "dag.hpp"
-#include "dt.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -21,10 +20,7 @@ int main(int argc, const char *argv[])
 
     spdlog::set_level(spdlog::level::info);
 
-    DAG dag(argv[1]);
-    DT dt(dag);
-
-    spdlog::info("DT generated");
+    // TO BE IMPLEMENTED
 
     return 0;
 }
