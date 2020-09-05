@@ -1,4 +1,5 @@
 #define CATCH_CONFIG_MAIN
+#define private public
 
 #include "catch.hpp"
 #include "spdlog/spdlog.h"
