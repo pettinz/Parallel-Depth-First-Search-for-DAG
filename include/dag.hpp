@@ -20,14 +20,15 @@ class DAG
 
 private:
     void DFSUtil(unsigned long v, unsigned long &pre, unsigned long &post, vector<bool> &visited, vector<unsigned long> &preorder, vector<unsigned long> &postorder);
-    void ParallelDFSUtil1(vector<node> &dtIA, vector<node> &dtJA, vector<node> &dtParents);
-    void ParallelDFSUtil2(const vector<node> &dtIA, const vector<node> &dtJA, const vector<node> &dtParents, vector<unsigned long> &nodeSize, vector<unsigned long> &presum);
-    void ParallelDFSUtil3(const vector<node> &dtIA, const vector<node> &dtJA, const vector<node> &dtParents, const vector<unsigned long> &nodeSize, const vector<unsigned long> &presum, vector<unsigned long> &preorder, vector<unsigned long> &postorder);
-
+    
 public:
     DAG(const string &);
     void DFS(vector<node> &preorder, vector<node> &postorder);
     void ParallelDFS(vector<node> &preorder, vector<node> &postorder);
+
+    void ParallelDFSUtil1(vector<node> &dtIA, vector<node> &dtJA, vector<node> &dtParents);
+    void ParallelDFSUtil2(const vector<node> &dtIA, const vector<node> &dtJA, const vector<node> &dtParents, vector<unsigned long> &nodeSize, vector<unsigned long> &presum);
+    void ParallelDFSUtil3(const vector<node> &dtIA, const vector<node> &dtJA, const vector<node> &dtParents, const vector<unsigned long> &nodeSize, const vector<unsigned long> &presum, vector<unsigned long> &preorder, vector<unsigned long> &postorder);
 
     const vector<node> &get_np() const { return np_; }
     const unsigned long getV() const { return V_; }

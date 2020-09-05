@@ -1,10 +1,9 @@
 #define CATCH_CONFIG_MAIN
-#define private public
 
 #include "catch.hpp"
 #include "spdlog/spdlog.h"
 #include "dag.hpp"
-#include "quer.gra.hpp"
+#include "v8e3.gra.hpp"
 
 DAG dag(TEST_FILE);
 
@@ -25,10 +24,10 @@ TEST_CASE("DFS", "[dag]")
 #ifdef SECTION_1
     SECTION("Directed tree generation")
     {
-
+        REQUIRE(parents == test_dtParents);
         REQUIRE(IA == test_dtIA);
         REQUIRE(JA == test_dtJA);
-        REQUIRE(parents == test_dtParents);
+
     }
 #endif // SECTION_1
 
