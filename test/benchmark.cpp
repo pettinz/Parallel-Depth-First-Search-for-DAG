@@ -1,5 +1,4 @@
 #define CATCH_CONFIG_MAIN
-#define private public
 
 #include <string>
 #include <chrono>
@@ -33,17 +32,20 @@ TEST_CASE("files", "f")
 
         DAG dag(file);
 
-        vector<unsigned long> preorder, preorder_r, postorder, postorder_r;
+        vector<unsigned long> preorder, preorder_r, postorder, postorder_r, inner_r, outer_r, inner;
 
-        dag.DFS(preorder_r, postorder_r);
+        dag.DFS(preorder_r, postorder_r, inner_r, outer_r);
 
         auto start = chrono::high_resolution_clock::now();
         ios_base::sync_with_stdio(false);
         dag.ParallelDFS(preorder, postorder);
+        dag.labelingUtil(postorder, inner);
         auto end = chrono::high_resolution_clock::now();
 
         REQUIRE(preorder == preorder_r);
-        REQUIRE(postorder == postorder_r);
+        REQUIRE(postorder == outer_r);
+        REQUIRE(inner == inner_r);
+
 
         spdlog::info("Completed {} in {}s", file, chrono::duration_cast<chrono::nanoseconds>(end - start).count() * 1e-9);
     }

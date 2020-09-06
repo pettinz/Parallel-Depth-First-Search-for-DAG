@@ -34,31 +34,42 @@ bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &
     return false;
 }
 
-void DAG::DFSUtil(unsigned long v, unsigned long &pre, unsigned long &post, vector<bool> &visited, vector<unsigned long> &preorder, vector<unsigned long> &postorder)
+void DAG::DFSUtil(unsigned long v, unsigned long &pre, unsigned long &post, vector<bool> &visited, vector<unsigned long> &preorder, vector<unsigned long> &postorder, vector<unsigned long> &innerRank, vector<unsigned long> &outerRank)
 {
     visited[v] = true;
     preorder[v] = pre++;
+    unsigned long min = LONG_MAX;
 
-    for (unsigned long i = IA_[v]; i < IA_[v + 1]; i++)
+    for (unsigned long i = IA_[v]; i < IA_[v + 1]; i++){
         if (!visited[JA_[i]])
-            DFSUtil(JA_[i], pre, post, visited, preorder, postorder);
+            DFSUtil(JA_[i], pre, post, visited, preorder, postorder, innerRank, outerRank);
+        if (innerRank[JA_[i]] < min)
+            min = innerRank[JA_[i]];
+        }
 
+    innerRank[v] = min; 
     postorder[v] = post++;
+    outerRank[v] = post; 
+    if (outerRank[v] < min ) // foglia 
+        innerRank[v] = outerRank[v]; 
+        
 }
 
-void DAG::DFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder)
+void DAG::DFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder, vector<unsigned long> &innerRank, vector<unsigned long> &outerRank)
 {
     vector<bool> visited(V_, false);
-    vector<unsigned long> preorder_tmp(V_), postorder_tmp(V_);
+    vector<unsigned long> preorder_tmp(V_), postorder_tmp(V_), innerRank_tmp(V_), outerRank_tmp(V_);
     unsigned long pre = 0, post = 0;
 
     //for (node i = 0; i < V_; i++)
     for (auto i : roots_)
         if (visited[i] == false) // && np_[i] == 0)
-            DFSUtil(i, pre, post, visited, preorder_tmp, postorder_tmp);
+            DFSUtil(i, pre, post, visited, preorder_tmp, postorder_tmp, innerRank_tmp, outerRank_tmp);
 
     preorder = move(preorder_tmp);
     postorder = move(postorder_tmp);
+    innerRank = move(innerRank_tmp);
+    outerRank = move(outerRank_tmp);
 }
 
 DAG::DAG(const string &fileName)
@@ -72,9 +83,11 @@ DAG::DAG(const string &fileName)
 
     string line;
     unsigned long i, j;
-    unsigned long n;
+    unsigned long n, k;
+    vector <unsigned long> KA_; 
 
     n = 0;
+    k = 0; 
     IA_.emplace_back(n);
 
     getline(infile, line);
@@ -92,18 +105,35 @@ DAG::DAG(const string &fileName)
         while (iss >> j)
         {
             JA_.emplace_back(j);
-
+            KA_.emplace_back(k);
             np_[j]++;
             n++;
         }
-
+        k++;
         IA_.emplace_back(n);
     }
 
+    unsigned long ns = 0; 
+    npsum_.emplace_back(ns);
     // Finding roots
-    for (node i = 0; i < V_; i++)
+    for (node i = 0; i < V_; i++) {
         if (np_[i] == 0)
             roots_.emplace_back(i);
+        ns += np_[i];
+        npsum_.emplace_back(ns); 
+    }
+
+        // building NA 
+    NA_ = vector<unsigned long> (JA_.size());
+    unsigned long el;
+    vector<unsigned long> cc = vector<unsigned long> (V_, 0); 
+    for (unsigned long j = 0; j<JA_.size(); j++ ){ 
+        el = JA_[j]; 
+        unsigned long pos = npsum_[el] + cc[el]; 
+        cc[el]++; 
+        NA_[pos] = KA_[j] ;
+    }
+
 
     infile.close();
 }
@@ -314,10 +344,11 @@ void DAG::ParallelDFSUtil3(const vector<node> &dtIA, const vector<node> &dtJA, c
     postorder = move(postorder_tmp);
 }
 
-void DAG::labelingUtil(vector<unsigned long> &postorder, const vector<node> &dtParent)
+void DAG::labelingUtil(vector<unsigned long> &postorder, vector<unsigned long> &innerRank)
 {
-    vector<node> innerRank, marked;
+    vector<node> innerRank_tmp, marked;
     queue<node> Q;
+    vector<mutex> mutexes(V_);
 
     for (node i = 0; i < V_; i++)
     {
@@ -325,29 +356,63 @@ void DAG::labelingUtil(vector<unsigned long> &postorder, const vector<node> &dtP
             Q.push(i);
 
         marked.emplace_back(IA_[i + 1] - IA_[i]);
-        innerRank.emplace_back(++postorder[i]);
+        innerRank_tmp.emplace_back(++postorder[i]);
     }
 
     while (!Q.empty())
     {
-        queue<node> C;
+        //vector<thread> tasks[2];
+        vector<future<void>> tasks1, tasks2;
+        threadsafe::queue<node> C;
 
         while (!Q.empty())
         {
-            unsigned long min = INT_MAX;
-            node i = Q.front(), p = dtParent[i];
+            node i = Q.front();
             Q.pop();
+            tasks1.emplace_back(threadpools[1].enqueue([&, i](){
+                vector<future<void>> tasks;
+            
+                for (unsigned long p = npsum_[i]; p < npsum_[i + 1]; p++) {
+                    tasks.emplace_back(threadpools[2].enqueue([&, p]() {
+                        lock_guard<mutex> lock(mutexes[NA_[p]]);
+                        if (--marked[NA_[p]] == 0) 
+                            C.push(NA_[p]);
+                        
+                    } ));  
+                }
 
-            if (--marked[p] == 0)
-                C.push(p);
+                for (auto &t : tasks)
+                    t.wait();
+            }));
+        } 
 
-            for (unsigned long n = IA_[i]; n < IA_[i + 1]; n++)
-                if (postorder[JA_[n]] < min)
-                    min = postorder[JA_[n]];
+        for (auto &t : tasks1)
+            t.wait();
 
-            innerRank[i] = min;
+
+        while (!C.empty()) 
+        {
+            node p = C.pop().value();
+            Q.push(p);
+
+            tasks2.emplace_back(threadpools[0].enqueue([&, p]() {
+                unsigned long min = LONG_MAX;
+                for (unsigned long n = IA_[p]; n < IA_[p + 1]; n++) {
+                    if (innerRank_tmp[JA_[n]] < min){
+                        min = innerRank_tmp[JA_[n]];
+                    }
+                }
+                if (min < innerRank_tmp[p]) {
+                    innerRank_tmp[p] = min;
+                }
+            }));
         }
 
-        swap(Q, C);
+        for (auto &t : tasks2)
+            t.wait();
+
+        
     }
+
+    innerRank = move(innerRank_tmp);
 }

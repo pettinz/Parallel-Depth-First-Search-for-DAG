@@ -1,12 +1,11 @@
 #define CATCH_CONFIG_MAIN
-#define private public
 
 #include "catch.hpp"
 #include "spdlog/spdlog.h"
 #include "dag.hpp"
 
 #include <filesystem>
-#include "quer.gra.hpp"
+#include "amaze.gra.hpp"
 
 using namespace std;
 
@@ -48,8 +47,9 @@ TEST_CASE("DFS", "[dag]")
     }
 #endif // SECTION_2
 
-    vector<unsigned long> preorder, postorder;
+    vector<unsigned long> preorder, postorder, inner;
     dag.ParallelDFSUtil3(IA, JA, parents, subgraphSize, presum, preorder, postorder);
+    
 
 #ifdef SECTION_3
     SECTION("Pre- and post-order")
@@ -59,12 +59,14 @@ TEST_CASE("DFS", "[dag]")
     }
 #endif // SECTION_3
 
+        dag.labelingUtil(postorder, inner);
     SECTION("Parallel vs Recursive")
     {
-        vector<unsigned long> preorder_r, postorder_r;
-        dag.DFS(preorder_r, postorder_r);
+        vector<unsigned long> preorder_r, postorder_r, inner_r, outer_r;
+        dag.DFS(preorder_r, postorder_r, inner_r, outer_r);
 
         REQUIRE(preorder == preorder_r);
-        REQUIRE(postorder == postorder_r);
+        REQUIRE(postorder == outer_r);
+        REQUIRE(inner == inner_r);
     }
 }
