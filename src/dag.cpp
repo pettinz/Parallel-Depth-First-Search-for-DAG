@@ -10,6 +10,8 @@
 
 #include "spdlog/spdlog.h"
 
+ThreadPool threadpools[3] = {ThreadPool(thread::hardware_concurrency()), ThreadPool(thread::hardware_concurrency() / 2), ThreadPool(thread::hardware_concurrency() / 2)};
+
 bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &b)
 {
     if (b.empty())
@@ -126,8 +128,6 @@ void DAG::ParallelDFSUtil1(vector<node> &dtIA, vector<node> &dtJA, vector<node> 
     vector<node> parents(V_);
     vector<node> np = np_;
 
-    ThreadPool *threadpool = ThreadPool::getInstance();
-
     for (auto n : roots_)
     {
         Q.push(n);
@@ -138,20 +138,18 @@ void DAG::ParallelDFSUtil1(vector<node> &dtIA, vector<node> &dtJA, vector<node> 
     while (!Q.empty())
     {
         threadsafe::queue<node> P;
-        // vector<future<void>> tasks;
-        vector<thread> tasks;
+        vector<future<void>> tasks;
 
         while (!Q.empty())
         {
             unsigned long p = Q.front();
             Q.pop();
 
-            tasks.emplace_back(thread([&, p] { // tasks.emplace_back(threadpool->enqueue([&, p] {
-                // vector<future<void>> tasks;
-                vector<thread> tasks;
+            tasks.emplace_back(threadpools[0].enqueue([&, p] {
+                vector<future<void>> tasks;
 
                 for (unsigned long int i = IA_[p]; i < IA_[p + 1]; i++)
-                    tasks.emplace_back(thread([&, p, i](node n) { // tasks.emplace_back(threadpool->enqueue([&, p, i](node n) {
+                    tasks.emplace_back(threadpools[1].enqueue([&, p, i](node n) {
                         lock_guard<mutex> lock(mutexes[n]);
 
                         vector<node> pri = path[p];
@@ -168,15 +166,15 @@ void DAG::ParallelDFSUtil1(vector<node> &dtIA, vector<node> &dtJA, vector<node> 
                         if (--np[n] == 0)
                             P.push(n);
                     },
-                                              JA_[i]));
+                                                              JA_[i]));
 
                 for (auto &t : tasks)
-                    t.join(); // t.wait();
+                    t.wait();
             }));
         }
 
         for (auto &t : tasks)
-            t.join(); // t.wait();
+            t.wait();
 
         P.swap(Q);
     }
@@ -207,8 +205,6 @@ void DAG::ParallelDFSUtil2(const vector<node> &dtIA, const vector<node> &dtJA, c
     vector<mutex> mutexes(V_);
     queue<node> Q;
 
-    ThreadPool *threadpool = ThreadPool::getInstance();
-
     for (node i = 0; i < V_; i++)
         if ((marked[i] = dtIA[i + 1] - dtIA[i]) == 0)
             Q.push(i);
@@ -216,30 +212,29 @@ void DAG::ParallelDFSUtil2(const vector<node> &dtIA, const vector<node> &dtJA, c
     while (!Q.empty())
     {
         threadsafe::queue<node> C;
-        // vector<future<void>> tasks[2];
-        vector<thread> tasks[2];
+        vector<future<void>> tasks[2];
 
         while (!Q.empty())
         {
             unsigned long p = Q.front();
             Q.pop();
 
-            tasks[0].emplace_back(thread([&](node p) { // tasks[0].emplace_back(threadpool->enqueue([&](node p) {
+            tasks[0].emplace_back(threadpools[0].enqueue([&](node p) { // tasks[0].emplace_back(thread([&](node p) {
                 lock_guard<mutex> lock(mutexes[p]);
                 if (--marked[p] == 0)
                     C.push(p);
             },
-                                         dtParents[p]));
+                                                         dtParents[p]));
         }
         for (auto &t : tasks[0])
-            t.join(); // t.wait();
+            t.wait(); // t.join();
 
         while (!C.empty())
         {
             node p = C.pop().value();
             Q.push(p);
 
-            tasks[1].emplace_back(thread([&, p] { // tasks[1].emplace_back(threadpool->enqueue([&, p] {
+            tasks[1].emplace_back(threadpools[0].enqueue([&, p] { // tasks[1].emplace_back(thread([&, p] {
                 unsigned long sub = 0;
                 for (unsigned long i = dtIA[p], j = 0; i < dtIA[p + 1]; i++)
                 {
@@ -253,7 +248,7 @@ void DAG::ParallelDFSUtil2(const vector<node> &dtIA, const vector<node> &dtJA, c
         }
 
         for (auto &t : tasks[1])
-            t.join(); // t.wait();
+            t.wait(); // t.join();
     }
     // presum for multiple roots
     for (auto i = next(roots_.begin()); i < roots_.end(); i++)
@@ -269,8 +264,6 @@ void DAG::ParallelDFSUtil3(const vector<node> &dtIA, const vector<node> &dtJA, c
     unsigned long depth = 0;
     queue<node> Q;
 
-    ThreadPool *threadpool = ThreadPool::getInstance();
-
     for (auto n : roots_)
     {
         Q.push(n);
@@ -281,30 +274,29 @@ void DAG::ParallelDFSUtil3(const vector<node> &dtIA, const vector<node> &dtJA, c
     while (!Q.empty())
     {
         threadsafe::queue<node> P;
-        // vector<future<void>> tasks;
-        vector<thread> tasks;
+        vector<future<void>> tasks;
 
         while (!Q.empty())
         {
             node p = Q.front();
             Q.pop();
 
-            tasks.emplace_back(thread([&, p] { // tasks.emplace_back(threadpool->enqueue([&, p] {
+            tasks.emplace_back(threadpools[1].enqueue([&, p] { // tasks.emplace_back(thread([&, p] {
                 unsigned long pre = preorder_tmp[p], post = postorder_tmp[p];
-                // vector<future<void>> tasks;
-                vector<thread> tasks;
+                vector<future<void>> tasks;
+                // vector<thread> tasks;
 
                 for (unsigned long i = dtIA[p]; i < dtIA[p + 1]; i++)
-                    tasks.emplace_back(thread([&, pre, post](node i) { // tasks.emplace_back(threadpool->enqueue([&, pre, post](node i) {
+                    tasks.emplace_back(threadpools[2].enqueue([&, pre, post](node i) { // tasks.emplace_back(thread([&, pre, post](node i) {
                         preorder_tmp[i] = pre + presum[i];
                         postorder_tmp[i] = post + presum[i];
 
                         P.push(i);
                     },
-                                              dtJA[i]));
+                                                              dtJA[i]));
 
                 for (auto &t : tasks)
-                    t.join(); // t.wait()
+                    t.wait(); // t.join();
 
                 preorder_tmp[p] = pre + depth;
                 postorder_tmp[p] = post + nodeSize[p] - 1;
@@ -312,7 +304,7 @@ void DAG::ParallelDFSUtil3(const vector<node> &dtIA, const vector<node> &dtJA, c
         }
 
         for (auto &t : tasks)
-            t.join(); // t.wait();
+            t.wait(); // t.join();
 
         P.swap(Q);
         depth++;
