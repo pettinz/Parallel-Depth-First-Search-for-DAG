@@ -13,8 +13,6 @@
 
 class ThreadPool
 {
-    static ThreadPool *instance;
-
     // need to keep track of threads so we can join them
     std::vector<std::thread> workers;
     // the task queue
@@ -25,6 +23,7 @@ class ThreadPool
     std::condition_variable condition;
     bool stop;
 
+public:
     // the constructor just launches some amount of workers
     explicit ThreadPool(size_t size) : stop(false)
     {
@@ -48,15 +47,6 @@ class ThreadPool
                         task();
                     }
                 });
-    }
-
-public:
-    static ThreadPool *getInstance()
-    {
-        if (instance == 0)
-            instance = new ThreadPool(std::thread::hardware_concurrency());
-
-        return instance;
     }
 
     // add new work item to the pool
@@ -95,7 +85,5 @@ public:
             worker.join();
     }
 };
-
-ThreadPool *ThreadPool::instance = 0;
 
 #endif //_THREADPOOL_H
