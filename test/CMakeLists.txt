@@ -13,6 +13,13 @@ target_link_libraries(test
     ThreadSafe::Queue
 )
 
+add_executable(benchmark benchmark.cpp ${SOURCES})
+target_link_libraries(benchmark 
+    spdlog::spdlog
+    ThreadPool::ThreadPool
+    ThreadSafe::Queue
+)
+
 file(GLOB GRA_FILES "gra/*.gra")
 message(STATUS "Graph files copied into " ${PROJECT_BINARY_DIR})
 file(COPY ${GRA_FILES} DESTINATION ${PROJECT_BINARY_DIR})
