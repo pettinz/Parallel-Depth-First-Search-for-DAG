@@ -22,8 +22,7 @@ void getTestFiles(queue<string> &files)
 TEST_CASE("files", "f")
 {
     queue<string> files;
-    //getTestFiles(files);
-    files.push("uniprotenc_22m.scc.gra");
+    getTestFiles(files);
 
     while (!files.empty())
     {
