@@ -1,4 +1,5 @@
 #define CATCH_CONFIG_MAIN
+#define private public
 
 #include "catch.hpp"
 #include "spdlog/spdlog.h"
@@ -23,9 +24,9 @@ TEST_CASE("Read", "[dag]")
 
 TEST_CASE("DFS", "[dag]")
 {
+    DAG::DT dt = dag.toDT();
 
-    vector<node> IA, JA, parents;
-    dag.ParallelDFSUtil1(IA, JA, parents);
+    const vector<node> &IA = dt.getIA(), &JA = dt.getJA(), &parents = dt.getParents();
 
 #ifdef SECTION_1
     SECTION("Directed tree generation")
@@ -37,7 +38,7 @@ TEST_CASE("DFS", "[dag]")
 #endif // SECTION_1
 
     vector<unsigned long> subgraphSize, presum;
-    dag.ParallelDFSUtil2(IA, JA, parents, subgraphSize, presum);
+    dt.computeNodeSizeAndPresum(subgraphSize, presum);
 
 #ifdef SECTION_2
     SECTION("Subgraph size computation")
@@ -48,8 +49,7 @@ TEST_CASE("DFS", "[dag]")
 #endif // SECTION_2
 
     vector<unsigned long> preorder, postorder, inner;
-    dag.ParallelDFSUtil3(IA, JA, parents, subgraphSize, presum, preorder, postorder);
-    
+    dt.parallelDFS(preorder, postorder);
 
 #ifdef SECTION_3
     SECTION("Pre- and post-order")
@@ -59,7 +59,7 @@ TEST_CASE("DFS", "[dag]")
     }
 #endif // SECTION_3
 
-        dag.labelingUtil(postorder, inner);
+    dag.labeling(postorder, inner);
     SECTION("Parallel vs Recursive")
     {
         vector<unsigned long> preorder_r, postorder_r, inner_r, outer_r;

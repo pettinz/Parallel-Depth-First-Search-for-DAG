@@ -39,13 +39,12 @@ TEST_CASE("files", "f")
         auto start = chrono::high_resolution_clock::now();
         ios_base::sync_with_stdio(false);
         dag.ParallelDFS(preorder, postorder);
-        dag.labelingUtil(postorder, inner);
+        dag.labeling(postorder, inner);
         auto end = chrono::high_resolution_clock::now();
 
         REQUIRE(preorder == preorder_r);
         REQUIRE(postorder == outer_r);
         REQUIRE(inner == inner_r);
-
 
         spdlog::info("Completed {} in {}s", file, chrono::duration_cast<chrono::nanoseconds>(end - start).count() * 1e-9);
     }
