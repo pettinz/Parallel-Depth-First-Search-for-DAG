@@ -1,12 +1,18 @@
 #define CATCH_CONFIG_MAIN
+#define private public
 
 #include "catch.hpp"
 #include "spdlog/spdlog.h"
 #include "dag.hpp"
-#include "v8e3.gra.hpp"
+
+#include <filesystem>
+#include "quer.gra.hpp"
+
+using namespace std;
 
 DAG dag(TEST_FILE);
 
+#ifdef TEST_READ
 TEST_CASE("Read", "[dag]")
 {
     REQUIRE(dag.getV() == test_V);
@@ -14,6 +20,7 @@ TEST_CASE("Read", "[dag]")
     REQUIRE(dag.getJA() == test_JA);
     REQUIRE(dag.get_np() == test_np);
 }
+#endif // TEST_READ
 
 TEST_CASE("DFS", "[dag]")
 {
@@ -27,7 +34,6 @@ TEST_CASE("DFS", "[dag]")
         REQUIRE(parents == test_dtParents);
         REQUIRE(IA == test_dtIA);
         REQUIRE(JA == test_dtJA);
-
     }
 #endif // SECTION_1
 

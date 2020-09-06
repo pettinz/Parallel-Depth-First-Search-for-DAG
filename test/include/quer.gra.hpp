@@ -3,6 +3,8 @@
 
 #define TEST_FILE "quer.gra"
 
+#define TEST_READ
+
 #define test_V 7
 #define test_IA \
     vector<unsigned long> { 0, 2, 4, 6, 6, 7, 8, 8 }
