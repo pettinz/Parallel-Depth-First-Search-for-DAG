@@ -26,7 +26,7 @@ TEST_CASE("DFS", "[dag]")
 {
     DAG::DT dt = dag.toDT();
 
-    const vector<node> &IA = dt.getIA(), &JA = dt.getJA(), &parents = dt.getParents();
+    const vector<unsigned long> &IA = dt.getIA(), &JA = dt.getJA(), &parents = dt.getParents();
 
 #ifdef SECTION_1
     SECTION("Directed tree generation")
