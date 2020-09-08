@@ -1,4 +1,4 @@
-#define N_ARGS 2
+#define N_ARGS 3
 
 #include <iostream>
 #include <fstream>
@@ -21,17 +21,17 @@ int main(int argc, const char *argv[])
 
     spdlog::set_level(spdlog::level::info);
 
-    DAG dag(argv[0]);
+    DAG dag(argv[1]);
     unsigned long V = dag.getV();
     vector<unsigned long> innerRank, outerRank;
 
     dag.labeling(outerRank, innerRank);
 
-    ofstream outfile(argv[1], ios_base::out | ios_base::trunc);
+    ofstream outfile(argv[2], ios_base::out | ios_base::trunc);
 
     outfile << V << endl;
     for (unsigned long i = 0; i < V; i++)
-        outfile << i << ": " << outerRank[i] << " " << innerRank[i] << endl;
+        outfile << i << ": " << innerRank[i] << " " << outerRank[i] << endl;
     outfile.close();
 
     return 0;
