@@ -1,19 +1,28 @@
 #define CATCH_CONFIG_MAIN
 
 #include <string>
+#include <queue>
 #include <chrono>
+#include <filesystem>
 
 #include "catch.hpp"
 #include "spdlog/spdlog.h"
 #include "dag.hpp"
 
-#define TEST_PARALLEL_DFS
+const string GRA_DIR{"gra/"};
+const string LARGE_REAL_FILES{"large_real/"};
+const string SMALL_DENSE_REAL_FILES{"small_dense_real/"};
+const string SMALL_SPARSE_REAL_FILES{"small_sparse_real/"};
 
-void getTestFiles(queue<string> &files)
+const string TEST_FILES = GRA_DIR + LARGE_REAL_FILES;
+
+#define TEST_EXECUTION_TIMES
+
+void getTestFiles(const string &dir, queue<string> &files)
 {
     queue<string> files_tmp;
 
-    for (auto &p : filesystem::recursive_directory_iterator("."))
+    for (auto &p : filesystem::directory_iterator(dir))
         if (p.path().extension() == ".gra")
             files_tmp.push(p.path().filename());
 
@@ -24,7 +33,7 @@ void getTestFiles(queue<string> &files)
 TEST_CASE("parallelDFS", "f")
 {
     queue<string> files;
-    getTestFiles(files);
+    getTestFiles(TEST_FILES, files);
 
     spdlog::info("Testing parallel DFS");
     while (!files.empty())
@@ -34,7 +43,7 @@ TEST_CASE("parallelDFS", "f")
 
         spdlog::info("...on file {}...", file);
 
-        DAG dag(file);
+        DAG dag(TEST_FILES + file);
 
         vector<unsigned long> preorder[2], postorder[2], innerRank, outerRank;
 
@@ -87,7 +96,7 @@ TEST_CASE("labeling", "dag")
 TEST_CASE("parallelDFS", "execution time")
 {
     queue<string> files;
-    getTestFiles(files);
+    getTestFiles(TEST_FILES, files);
 
     spdlog::info("Testing execution times on parallel DFS");
     while (!files.empty())
@@ -97,7 +106,7 @@ TEST_CASE("parallelDFS", "execution time")
 
         spdlog::info("...on file {}...", file);
 
-        DAG dag(file);
+        DAG dag(TEST_FILES + file);
         vector<unsigned long> outerRank, innerRank;
 
         auto start = chrono::high_resolution_clock::now();
