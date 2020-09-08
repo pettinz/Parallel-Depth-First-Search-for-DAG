@@ -4,6 +4,7 @@
 #include <queue>
 #include <chrono>
 #include <filesystem>
+namespace fs = std::filesystem;
 
 #include "catch.hpp"
 #include "spdlog/spdlog.h"
@@ -13,105 +14,47 @@
 #define GRA_DIR ""
 #endif
 
-const string LARGE_REAL_FILES{"large_real/"};
-const string SMALL_DENSE_REAL_FILES{"small_dense_real/"};
-const string SMALL_SPARSE_REAL_FILES{"small_sparse_real/"};
-
-const string TEST_FILES = GRA_DIR + SMALL_DENSE_REAL_FILES;
-
+#define TEST_PARALLEL_DFS
+#define TEST_LABELING
 #define TEST_EXECUTION_TIMES
 
 void getTestFiles(const string &dir, queue<string> &files)
 {
     queue<string> files_tmp;
 
-    spdlog::info("DIR: {}", dir);
-
-    for (auto &p : filesystem::directory_iterator(dir))
-        if (p.path().extension() == ".gra")
-            files_tmp.push(p.path().filename().string());
+    for (auto &p : fs::directory_iterator(dir))
+        if (fs::is_regular_file(p) && p.path().extension() == ".gra")
+            files_tmp.push(p.path().string());
 
     files = move(files_tmp);
 }
 
-#ifdef TEST_PARALLEL_DFS
-TEST_CASE("parallelDFS", "f")
+void getTestFilesRecursive(const string &dir, queue<fs::path> &files)
 {
-    queue<string> files;
-    getTestFiles(TEST_FILES, files);
+    queue<fs::path> files_tmp;
 
-    spdlog::info("Testing parallel DFS");
-    while (!files.empty())
-    {
-        string file = files.front();
-        files.pop();
+    for (auto &p : fs::recursive_directory_iterator(dir))
+        if (fs::is_regular_file(p) && p.path().extension() == ".gra")
+            files_tmp.push(p.path().string());
 
-        spdlog::info("...on file {}...", file);
-
-        DAG dag(TEST_FILES + file);
-
-        vector<unsigned long> preorder[2], postorder[2], innerRank, outerRank;
-
-        dag.DFS(preorder[0], postorder[0], innerRank, outerRank);
-
-        dag.parallelDFS(preorder[1], postorder[1]);
-
-        REQUIRE(preorder[0] == preorder[1]);
-        REQUIRE(postorder[0] == postorder[1]);
-
-        spdlog::info("\tcompleted.");
-    }
+    files = move(files_tmp);
 }
-#endif
-
-#ifdef TEST_LABELING
-TEST_CASE("labeling", "dag")
-{
-    queue<string> files;
-    getTestFiles(files);
-
-    spdlog::info("Testing labeling");
-    while (!files.empty())
-    {
-        string file = files.front();
-        files.pop();
-
-        spdlog::info("...on file {}...", file);
-
-        DAG dag(file);
-
-        vector<unsigned long> preorder, postorder, outerRank[2], innerRank[2];
-
-        dag.DFS(preorder, postorder, innerRank[1], outerRank[1]);
-
-        auto start = chrono::high_resolution_clock::now();
-        ios_base::sync_with_stdio(false);
-        dag.labeling(outerRank[0], innerRank[0]);
-        auto end = chrono::high_resolution_clock::now();
-
-        REQUIRE(outerRank[0] == outerRank[1]);
-        REQUIRE(innerRank[0] == innerRank[1]);
-
-        spdlog::info("\tcompleted {} in {}s", file, chrono::duration_cast<chrono::nanoseconds>(end - start).count() * 1e-9);
-    }
-}
-#endif
 
 #ifdef TEST_EXECUTION_TIMES
-TEST_CASE("parallelDFS", "execution time")
+TEST_CASE("Execution times", "dag")
 {
-    queue<string> files;
-    getTestFiles(TEST_FILES, files);
+    queue<fs::path> files;
+    getTestFilesRecursive(GRA_DIR, files);
 
     spdlog::info("Testing execution times on parallel DFS");
     while (!files.empty())
     {
-        string file = files.front();
+        fs::path file = files.front();
         files.pop();
 
-        spdlog::info("...on file {}...", file);
+        spdlog::info("...on file {}...", file.filename().string());
 
-        DAG dag(TEST_FILES + file);
+        DAG dag(file);
         vector<unsigned long> outerRank, innerRank;
 
         auto start = chrono::high_resolution_clock::now();
@@ -119,7 +62,7 @@ TEST_CASE("parallelDFS", "execution time")
         dag.labeling(outerRank, innerRank);
         auto end = chrono::high_resolution_clock::now();
 
-        spdlog::info("\tcompleted {} in {}s", file, chrono::duration_cast<chrono::nanoseconds>(end - start).count() * 1e-9);
+        spdlog::info("\tcompleted in {}s", chrono::duration_cast<chrono::nanoseconds>(end - start).count() * 1e-9);
     }
 }
 #endif
