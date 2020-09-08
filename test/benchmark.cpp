@@ -17,13 +17,15 @@ const string LARGE_REAL_FILES{"large_real/"};
 const string SMALL_DENSE_REAL_FILES{"small_dense_real/"};
 const string SMALL_SPARSE_REAL_FILES{"small_sparse_real/"};
 
-const string TEST_FILES = GRA_DIR + LARGE_REAL_FILES;
+const string TEST_FILES = GRA_DIR + SMALL_DENSE_REAL_FILES;
 
 #define TEST_EXECUTION_TIMES
 
 void getTestFiles(const string &dir, queue<string> &files)
 {
     queue<string> files_tmp;
+
+    spdlog::info("DIR: {}", dir);
 
     for (auto &p : filesystem::directory_iterator(dir))
         if (p.path().extension() == ".gra")

@@ -23,6 +23,4 @@ target_link_libraries(benchmark
 )
 
 file(GLOB GRA_DIR "gra")
-file(COPY ${GRA_DIR} DESTINATION ${PROJECT_BINARY_DIR})
-
-target_compile_definitions(benchmark PRIVATE GRA_DIR="${PROJECT_BINARY_DIR}/${GRA_DIR}")
+target_compile_definitions(benchmark PRIVATE GRA_DIR="${GRA_DIR}/")
