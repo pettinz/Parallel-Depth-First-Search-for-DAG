@@ -4,40 +4,38 @@
 #include <string>
 #include <vector>
 
-#include <queue>
-
 using namespace std;
 
 /**
  * @brief Directed acyclic graph class.
- * a CSR / CSC representation is used for the adjacency matrix to reduce memory use
+ * CSR/CSC representation is used instead of the adjacency matrix to reduce memory useage
  */
 class DAG
 {
-    vector<unsigned long> IA_; /** child sum vector for the CSR*/
-    vector<unsigned long> JA_; /** child list vector for the CSR*/
-    vector<unsigned long> npsum_; /** parent sum vector for the CSC*/
-    vector<unsigned long> NA_; /** parent list vector for the CSC */
-    unsigned long V_; /** number of graph vertex */
+    unsigned long V_;             /*!< number of graph vertex */
+    vector<unsigned long> IA_;    /*!< child cumulative sum vector for the CSR */
+    vector<unsigned long> JA_;    /*!< child list vector for the CSR */
+    vector<unsigned long> npsum_; /*!< parent cumulative sum vector for the CSC */
+    vector<unsigned long> NA_;    /*!< parent list vector for the CSC */
 
 private:
-
     /**
-    * @brief Directed Tree class.
-    * a CSR representation is used, CSC one is substituted with parents vector
+    * @brief Directed tree class.
+    * CSR representation is used, CSC one is substituted with parents vector
     */
     class DT
     {
-        unsigned long V_;
-        vector<unsigned long> IA_, JA_; 
-        vector<unsigned long> parents_; /** vector with the parent of each node*/
+        unsigned long V_;               /*!< number of graph vertex */
+        vector<unsigned long> IA_;      /*!< child cumulative sum vector for the CSR */
+        vector<unsigned long> JA_;      /*!< child list vector for the CSR */
+        vector<unsigned long> parents_; /*!< contains the parent of each node */
 
     private:
         /**
          * @brief Compute for each node its subgraph size and presum on its left siblings with a bottom-up BFS visit
          * 
-         * @param nodeSize empty vector which will be filled with the subgraph size of each node (index)
-         * @param presum empty vector which will be filled with the presum of each node (index)
+         * @param nodeSize will carry the subgraph size of each node (index)
+         * @param presum will carry the presum of each node (index)
          */
         void computeNodeSizeAndPresum(vector<unsigned long> &nodeSize, vector<unsigned long> &presum);
 
@@ -67,26 +65,26 @@ private:
          * @brief Check if a node is a root.
          * 
          * @param i node to be evaluated
-         * @return true if the evaluated node is a root
-         * @return false otherwise
+         * @return true, if the evaluated node is a root
+         * @return false, otherwise
          */
         bool isRoot(unsigned long i) { return parents_[i] == i; }
         /**
          * @brief Assign two labels (inner and outer rank) to each vertex. It mimics DFS execution in a parallel way
          * 
-         * @param outerRank empty vector which will be filled with the outer rank of each vertex 
-         * @param innerRank empty vector which will be filled with the inner rank of each vertex
+         * @param outerRank will carry the outer rank of each vertex 
+         * @param innerRank will carry the inner rank of each vertex
          */
         void parallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
     };
 
     /**
-     * @brief swapth two path if first one precedes the second one in the graph order
+     * @brief Swap two path if first one precedes the second one in the graph order
      * 
-     * @param a 
-     * @param b 
-     * @return true 
-     * @return false otherwise
+     * @param a the first path
+     * @param b the second path
+     * @return true, if the first path precedes the second one in the graph order
+     * @return false, otherwise
      */
     bool swapPath(const vector<unsigned long> &a, const vector<unsigned long> &b);
     /**
@@ -95,7 +93,7 @@ private:
      * @param v current vertex
      * @param pre pre-order time
      * @param post post-order time
-     * @param visited contains for each vertex (index) if it has been visited or not
+     * @param visited carry for each vertex (index) if it has been visited or not
      * @param preorder 
      * @param postorder 
      * @param innerRank 
@@ -140,31 +138,36 @@ public:
      * @brief Check if a vertex is a root.
      * 
      * @param i vertex to be evaluated
-     * @return true if the evaluated node is a root
-     * @return false otherwise
+     * @return true, if the evaluated node is a root
+     * @return false, otherwise
      */
     bool isRoot(unsigned long i) { return npsum_[i] == npsum_[i + 1]; }
     /**
      * @brief Perform a depth-first search visit for the current DAG in a recursive way
      * 
-     * @param preorder 
-     * @param postorder 
+     * @param preorder will carry the pre-order times
+     * @param postorder will carry the post-order times
      * @param innerRank 
      * @param outerRank 
      */
     void DFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder, vector<unsigned long> &innerRank, vector<unsigned long> &outerRank);
     /**
-     * @brief Perform a multithreaded depth-first search visit for the current DAG with multiple BFS execution, generating the associated DT and using subgraph size and presum of each vertex.
+     * @brief Perform a multithreaded depth-first search visit for the current DAG.
+     * By means of 3 BFS visits:
+     *     1. The first one generates the associated DT
+     *     2. The second one computes on the associated DT the subgraph size and presum of each node.
+     *     3. The last one computes pre-order and post-order times using the above information
      * 
-     * @param preorder 
-     * @param postorder 
+     * @param preorder will carry the pre-order times
+     * @param postorder will carry the post-order times
      */
     void parallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
     /**
-     * @brief Assign two labels (inner and outer rank) to each vertex, using preorder and postorder already computed for the DT associated to the DAG, with a bottom-up BFS visit
+     * @brief Assign two labels (inner and outer rank) to each vertex.
+     * Use preorder and postorder computed by a DFS.
      * 
-     * @param outerRank empty vector which will be filled with the outer rank of each vertex 
-     * @param innerRank empty vector which will be filled with the inner rank of each vertex
+     * @param outerRank will carry the outer rank of each vertex 
+     * @param innerRank will carry the inner rank of each vertex
      */
     void labeling(vector<unsigned long> &outerRank, vector<unsigned long> &innerRank);
 };
