@@ -17,18 +17,13 @@ bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &
     if (b.empty())
         return true;
 
-    if (a[0] < b[0])
-        return true;
-
-    for (auto ita = next(a.begin()), itb = next(b.begin()); ita != a.end() && itb != b.end(); ita++, itb++)
+    for (auto ita = a.begin(), itb = b.begin(); ita != a.end() && itb != b.end(); ita++, itb++)
     {
-        if (JA_[*ita] == JA_[*itb])
-            continue;
-
         if (*ita < *itb)
             return true;
 
-        return false;
+        if (*ita > *itb)
+            return false;
     }
 
     return false;
@@ -245,7 +240,8 @@ DAG::DT DAG::toDT()
                         vector<unsigned long> pri = path[p];
                         vector<unsigned long> &qri = path[n];
 
-                        pri.emplace_back(i);
+                        if (IA_[p + 1] - IA_[p] > 1)
+                            pri.emplace_back(i);
 
                         if (swapPath(pri, qri))
                         {
