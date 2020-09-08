@@ -10,26 +10,34 @@ using namespace std;
 
 /**
  * @brief Directed acyclic graph class.
- * 
+ * a CSR / CSC representation is used for the adjacency matrix to reduce memory use
  */
 class DAG
 {
-    vector<unsigned long> IA_, JA_;
-    vector<unsigned long> npsum_, NA_;
-    unsigned long V_;
+    vector<unsigned long> IA_; /** child sum vector for the CSR*/
+    vector<unsigned long> JA_; /** child list vector for the CSR*/
+    vector<unsigned long> npsum_; /** parent sum vector for the CSC*/
+    vector<unsigned long> NA_; /** parent list vector for the CSC */
+    unsigned long V_; /** number of graph vertex */
 
 private:
+
+    /**
+    * @brief Directed Tree class.
+    * a CSR representation is used, CSC one is substituted with parents vector
+    */
     class DT
     {
         unsigned long V_;
-        vector<unsigned long> IA_, JA_, parents_;
+        vector<unsigned long> IA_, JA_; 
+        vector<unsigned long> parents_; /** vector with the parent of each node*/
 
     private:
         /**
-         * @brief Compute for each node its size and presum
+         * @brief Compute for each node its subgraph size and presum on its left siblings with a bottom-up BFS visit
          * 
-         * @param nodeSize vector containing the size of each node (index)
-         * @param presum vector containing the presum of each node (index)
+         * @param nodeSize empty vector which will be filled with the subgraph size of each node (index)
+         * @param presum empty vector which will be filled with the presum of each node (index)
          */
         void computeNodeSizeAndPresum(vector<unsigned long> &nodeSize, vector<unsigned long> &presum);
 
@@ -64,16 +72,16 @@ private:
          */
         bool isRoot(unsigned long i) { return parents_[i] == i; }
         /**
-         * @brief Assign a label to each vertex.
+         * @brief Assign two labels (inner and outer rank) to each vertex. It mimics DFS execution in a parallel way
          * 
-         * @param outerRank 
-         * @param innerRank 
+         * @param outerRank empty vector which will be filled with the outer rank of each vertex 
+         * @param innerRank empty vector which will be filled with the inner rank of each vertex
          */
         void parallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
     };
 
     /**
-     * @brief 
+     * @brief swapth two path if first one precedes the second one in the graph order
      * 
      * @param a 
      * @param b 
@@ -96,7 +104,7 @@ private:
     void DFSUtil(unsigned long v, unsigned long &pre, unsigned long &post, vector<bool> &visited, vector<unsigned long> &preorder, vector<unsigned long> &postorder, vector<unsigned long> &innerRank, vector<unsigned long> &outerRank);
 
     /**
-     * @brief Create the DAG associated directed tree
+     * @brief Create the DAG associated directed tree following vertex order to choose the path with a top-down BFS visit
      * 
      * @return DT DAG associeated directed tree
      */
@@ -137,7 +145,7 @@ public:
      */
     bool isRoot(unsigned long i) { return npsum_[i] == npsum_[i + 1]; }
     /**
-     * @brief Perform a depth-first search visit for the current DAG.
+     * @brief Perform a depth-first search visit for the current DAG in a recursive way
      * 
      * @param preorder 
      * @param postorder 
@@ -146,17 +154,17 @@ public:
      */
     void DFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder, vector<unsigned long> &innerRank, vector<unsigned long> &outerRank);
     /**
-     * @brief Perform a multithreaded depth-first search visit for the current DAG.
+     * @brief Perform a multithreaded depth-first search visit for the current DAG with multiple BFS execution, generating the associated DT and using subgraph size and presum of each vertex.
      * 
      * @param preorder 
      * @param postorder 
      */
     void parallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
     /**
-     * @brief Assign a label to each vertex.
+     * @brief Assign two labels (inner and outer rank) to each vertex, using preorder and postorder already computed for the DT associated to the DAG, with a bottom-up BFS visit
      * 
-     * @param outerRank 
-     * @param innerRank 
+     * @param outerRank empty vector which will be filled with the outer rank of each vertex 
+     * @param innerRank empty vector which will be filled with the inner rank of each vertex
      */
     void labeling(vector<unsigned long> &outerRank, vector<unsigned long> &innerRank);
 };
