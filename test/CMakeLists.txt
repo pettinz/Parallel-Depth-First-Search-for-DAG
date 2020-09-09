@@ -8,7 +8,6 @@ include_directories(include)
 set(SOURCES
     ${CMAKE_SOURCE_DIR}/src/dag.cpp
 )
-file(GLOB GRA_DIR "gra")
 
 add_executable(test test.cpp ${SOURCES})
 target_link_libraries(test 
@@ -16,7 +15,6 @@ target_link_libraries(test
     ThreadPool::ThreadPool
     ThreadSafe::Queue
 )
-target_compile_definitions(test PRIVATE GRA_DIR="${GRA_DIR}/")
 
 add_executable(benchmark benchmark.cpp ${SOURCES})
 target_link_libraries(benchmark 
