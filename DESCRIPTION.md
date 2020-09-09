@@ -49,3 +49,19 @@ To provide protection and managing concurrent access on data we used:
 The threadpool is needed because in large graphs the number of generated threads is huge and the time needed for context switching in the CPU erases any advantage given by the parallel approach. Therefore the number of active threads is limited by the number of threads supported by the CPU which program is running on. For the threadpool implementation, we used tasks instead of threads, and a queue to manage active tasks.
 
 In case of "nested tasks", we used two threadpools, each one limited on the half of threads supported by the CPU, supposing the number of thread in the two levels is similar. Even if this option could not be the best one, using only one threadpool wasn't possible because it can produce deadlock scheduling only outer level threads which have to wait for inner level threads not in execution.
+
+## Project structure
+
+The project is a cross-platform CMake project written in C++ (see [README](README.md) for further details on building, running and/or testing).
+
+The main files are:
+
+- _include/dag.hpp_, the header file, which contains the prototype of the `DAG` class
+- _src/dag.cpp_, the source file, which contains the implementation of the `DAG` class
+- _main.cpp_, the main source file, which prints in the output file the final labeling of the DAG received as argument
+
+The _lib_ directory contains the following libraries
+
+- _threadpool_, a simple C++11 Thread Pool implementation (https://github.com/progschj/ThreadPool)
+- _threadsafe_queue_, a thread safe queue implementation, used for operation of push and pop in a queue in a multi-threaded context
+- _spdlog_, a very fast C++ logging library, used to provide some logging to the user (https://github.com/gabime/spdlog)
