@@ -62,6 +62,13 @@ The main files are:
 
 The _lib_ directory contains the following libraries
 
-- _threadpool_, a simple C++11 Thread Pool implementation (https://github.com/progschj/ThreadPool)
+- _threadpool_, a simple C++11 Thread Pool implementation, provided by [progschj](https://github.com/progschj/ThreadPool)
 - _threadsafe_queue_, a thread safe queue implementation, used for operation of push and pop in a queue in a multi-threaded context
-- _spdlog_, a very fast C++ logging library, used to provide some logging to the user (https://github.com/gabime/spdlog)
+- _spdlog_, a very fast C++ logging library, used to provide some logging to the user, provided by [gabime](https://github.com/gabime/spdlog)
+
+The _test_ directory contains the following:
+
+- _gra/_ directory, which contains the graph files
+- _include/catch.hpp_, the library used for unit testing
+- _benchmark.cpp_, which provieds the execution time for each graph files in the _gra_ directory
+- _test.cpp_, which checks the algorithm correctness comparing the results provided by `DAG::parallelDFS` and the results provided by `DAG::DFS`
