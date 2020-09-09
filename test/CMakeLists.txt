@@ -8,12 +8,15 @@ include_directories(include)
 set(SOURCES
     ${CMAKE_SOURCE_DIR}/src/dag.cpp
 )
-# add_executable(test test.cpp ${SOURCES})
-# target_link_libraries(test 
-#     spdlog::spdlog
-#     ThreadPool::ThreadPool
-#     ThreadSafe::Queue
-# )
+file(GLOB GRA_DIR "gra")
+
+add_executable(test test.cpp ${SOURCES})
+target_link_libraries(test 
+    spdlog::spdlog
+    ThreadPool::ThreadPool
+    ThreadSafe::Queue
+)
+target_compile_definitions(test PRIVATE GRA_DIR="${GRA_DIR}/")
 
 add_executable(benchmark benchmark.cpp ${SOURCES})
 target_link_libraries(benchmark 
@@ -21,6 +24,5 @@ target_link_libraries(benchmark
     ThreadPool::ThreadPool
     ThreadSafe::Queue
 )
-
-file(GLOB GRA_DIR "gra")
 target_compile_definitions(benchmark PRIVATE GRA_DIR="${GRA_DIR}/")
+
