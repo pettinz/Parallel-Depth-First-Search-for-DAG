@@ -29,7 +29,7 @@ private:
         vector<unsigned long> IA_;      /*!< child cumulative sum vector for the CSR */
         vector<unsigned long> JA_;      /*!< child list vector for the CSR */
         vector<unsigned long> parents_; /*!< contains the parent of each node */
-
+    
     private:
         /**
          * @brief Compute for each node its subgraph size and presum on its left siblings with a bottom-up BFS visit
@@ -38,6 +38,7 @@ private:
          * @param presum will carry the presum of each node (index)
          */
         void computeNodeSizeAndPresum(vector<unsigned long> &nodeSize, vector<unsigned long> &presum);
+        void seqcomputeNodeSizeAndPresum(vector<unsigned long> &nodeSize, vector<unsigned long> &presum);
 
     public:
         DT(unsigned long V, vector<unsigned long> IA, vector<unsigned long> JA, vector<unsigned long> parents) : V_(V), IA_(move(IA)), JA_(move(JA)), parents_(move(parents)) {}
@@ -76,6 +77,7 @@ private:
          * @param innerRank will carry the inner rank of each vertex
          */
         void parallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
+        void seqparallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
     };
 
     /**
@@ -107,6 +109,7 @@ private:
      * @return DT DAG associeated directed tree
      */
     DT toDT();
+    DT seqtoDT();
 
 public:
     /**
@@ -162,6 +165,7 @@ public:
      * @param postorder will carry the post-order times
      */
     void parallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
+    void seqparallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
     /**
      * @brief Assign two labels (inner and outer rank) to each vertex.
      * Use preorder and postorder computed by a DFS.
@@ -170,6 +174,7 @@ public:
      * @param innerRank will carry the inner rank of each vertex
      */
     void labeling(vector<unsigned long> &outerRank, vector<unsigned long> &innerRank);
+    void seqlabeling(vector<unsigned long> &outerRank, vector<unsigned long> &innerRank);
 };
 
 #endif // _DAG_HPP

@@ -16,11 +16,11 @@ target_link_libraries(test
     ThreadSafe::Queue
 )
 
-add_executable(benchmark benchmark.cpp ${SOURCES})
-target_link_libraries(benchmark 
-    spdlog::spdlog
-    ThreadPool::ThreadPool
-    ThreadSafe::Queue
-)
-target_compile_definitions(benchmark PRIVATE GRA_DIR="${GRA_DIR}/")
+# add_executable(benchmark benchmark.cpp ${SOURCES})
+# target_link_libraries(benchmark 
+#     spdlog::spdlog
+#     ThreadPool::ThreadPool
+#     ThreadSafe::Queue
+# )
+# target_compile_definitions(benchmark PRIVATE GRA_DIR="${GRA_DIR}/")
 
