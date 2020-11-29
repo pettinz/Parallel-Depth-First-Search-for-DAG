@@ -1,23 +1,34 @@
-cmake_minimum_required(VERSION 3.5)
-project(Parallel-Depth-First-Search-for-DAG)
-
-set(CMAKE_CXX_STANDARD 17)
-
-add_subdirectory(libs)
-
-include_directories(include)
-
-find_package( Threads REQUIRED )
-
-set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/dag.cpp
+cmake_minimum_required(VERSION 3.14...3.18)
+project(
+    Parallel-Depth-First-Search-for-DAG
+    VERSION 1.0
+    DESCRIPTION "Project SDP class"
+    LANGUAGES CXX
 )
 
-add_executable(main src/main.cpp ${SOURCES})
-target_link_libraries(main PRIVATE
-    spdlog::spdlog
-    Threads::Threads
-    ThreadPool::ThreadPool
-    ThreadSafe::Queue)
+find_package(Threads REQUIRED)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.8.1)
+FetchContent_MakeAvailable(spdlog)
+
+FetchContent_Declare(
+    threadpool
+    GIT_REPOSITORY https://github.com/pettinz/ThreadPool.git
+    GIT_TAG v1.0)
+FetchContent_MakeAvailable(threadpool)
+
+FetchContent_Declare(
+    threadsafe
+    GIT_REPOSITORY https://github.com/pettinz/threadsafe.git
+    GIT_TAG v1.0)
+FetchContent_MakeAvailable(threadsafe)
+
+add_subdirectory(src)
+
+include(CTest)
 add_subdirectory(test)

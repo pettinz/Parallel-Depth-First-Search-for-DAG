@@ -3,14 +3,18 @@
 #include <queue>
 #include <thread>
 #include <mutex>
+#include <optional>
 
 #include "dag.hpp"
-#include "threadpool.hpp"
-#include "threadsafe_queue.hpp"
+#include "threadpool.h"
+#include "threadsafe/queue.h"
 
 #include "spdlog/spdlog.h"
 
-ThreadPool threadpools[3] = {ThreadPool(thread::hardware_concurrency()), ThreadPool(thread::hardware_concurrency() / 2), ThreadPool(thread::hardware_concurrency() / 2)};
+ThreadPool threadpools[3] = {
+    ThreadPool(thread::hardware_concurrency()),
+    ThreadPool(thread::hardware_concurrency() / 2),
+    ThreadPool(thread::hardware_concurrency() / 2)};
 
 bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &b)
 {
