@@ -14,11 +14,12 @@ FetchContent_Declare(
     spdlog
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
     GIT_TAG v1.8.1)
+    
 FetchContent_MakeAvailable(spdlog)
 
 FetchContent_Declare(
     threadpool
-    GIT_REPOSITORY https://github.com/pettinz/ThreadPool.git
+    GIT_REPOSITORY https://github.com/pettinz/threadpool.git
     GIT_TAG v1.0)
 FetchContent_MakeAvailable(threadpool)
 
