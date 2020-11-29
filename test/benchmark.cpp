@@ -54,7 +54,7 @@ TEST_CASE("Execution times", "dag")
 
         spdlog::info("...on file {}...", file.filename().string());
 
-        DAG dag(file);
+        DAG dag(file.string());
         vector<unsigned long> outerRank, innerRank;
 
         auto start = chrono::high_resolution_clock::now();

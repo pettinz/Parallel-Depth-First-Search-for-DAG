@@ -83,7 +83,7 @@ TEST_CASE("labeling", "dag")
 
         spdlog::info("...on file {}...", file.filename().string());
 
-        DAG dag(file);
+        DAG dag(file.string());
 
         vector<unsigned long> preorder, postorder, outerRank[2], innerRank[2];
 
