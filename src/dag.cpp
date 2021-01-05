@@ -249,8 +249,8 @@ DAG::DT DAG::toDT()
                         vector<future<bool>> swapTasks;
                         lock_guard<mutex> lock(mutexes[n]);
                         bool get_res, new_res, temp_res[PARAL];
-                        long stop = LONG_MAX, g = 0;
-                        int endpos[PARAL];
+                        unsigned long stop = LONG_MAX, g = 0;
+                        unsigned long endpos[PARAL];
 
                         vector<unsigned long> pri = path[p];
                         vector<unsigned long> &qri = path[n];
@@ -286,7 +286,7 @@ DAG::DT DAG::toDT()
                             g++;
                         }
 
-                        for (int c = 0; c < PARAL; c++)
+                        for (unsigned long c = 0; c < PARAL; c++)
                         {
                             if (endpos[c] < stop)
                             {
