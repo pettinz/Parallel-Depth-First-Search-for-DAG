@@ -4,6 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <optional>
+#include <climits>
 
 #include "dag.hpp"
 #include "threadpool.h"
@@ -14,10 +15,10 @@
 #define PARAL 4
 
 ThreadPool threadpools[4] = {
-    ThreadPool(PARAL),
-    ThreadPool(PARAL / 2),
-    ThreadPool(PARAL / 2),
-    ThreadPool(PARAL)};
+    ThreadPool(12),
+    ThreadPool(4),
+    ThreadPool(6),
+    ThreadPool(4)};
 
 bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &b)
 {
@@ -36,25 +37,6 @@ bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &
     return false;
 }
 
-bool DAG::swapPath2(const vector<unsigned long> &a, const vector<unsigned long> &b, const int dim, const int offset, int &end)
-{
-    end = offset; 
-    if (b.empty())
-        return true;
-
-    for (auto ita = a.begin()+offset, itb = b.begin()+offset; ita < a.end() && itb < b.end(); ita+=dim, itb+=dim)
-    {   
-        if (*ita < *itb)
-            return true;
-
-        if (*ita > *itb)
-            return false;
-        end += dim ;
-    }
-
-    return false;
-}
-
 void DAG::DFSUtil(unsigned long v, unsigned long &pre, unsigned long &post, vector<bool> &visited, vector<unsigned long> &preorder, vector<unsigned long> &postorder, vector<unsigned long> &innerRank, vector<unsigned long> &outerRank)
 {
     visited[v] = true;
@@ -63,7 +45,8 @@ void DAG::DFSUtil(unsigned long v, unsigned long &pre, unsigned long &post, vect
 
     for (unsigned long i = IA_[v]; i < IA_[v + 1]; i++)
     {
-        if (!visited[JA_[i]]) {
+        if (!visited[JA_[i]])
+        {
             //spdlog::info("father: {} - child: {}", v, JA_[i]);
             DFSUtil(JA_[i], pre, post, visited, preorder, postorder, innerRank, outerRank);
         }
@@ -262,13 +245,12 @@ DAG::DT DAG::toDT()
                 vector<future<void>> tasks;
 
                 for (unsigned long int i = IA_[p]; i < IA_[p + 1]; i++)
-                    tasks.emplace_back(threadpools[1].enqueue([&, p, i](unsigned long n) { 
+                    tasks.emplace_back(threadpools[1].enqueue([&, p, i](unsigned long n) {
                         vector<future<bool>> swapTasks;
                         lock_guard<mutex> lock(mutexes[n]);
-                        bool get_res, new_res, temp_res[PARAL]; 
-                        int stop = LONG_MAX, g = 0;    
-                        int endpos[PARAL]; 
-                         
+                        bool get_res, new_res, temp_res[PARAL];
+                        long stop = LONG_MAX, g = 0;
+                        int endpos[PARAL];
 
                         vector<unsigned long> pri = path[p];
                         vector<unsigned long> &qri = path[n];
@@ -276,40 +258,45 @@ DAG::DT DAG::toDT()
                         if (IA_[p + 1] - IA_[p] > 1)
                             pri.emplace_back(i);
 
-                        for (int c=0; c<PARAL; c++) {
-                            swapTasks.emplace_back(threadpools[3].enqueue([&, c](const vector<unsigned long> &a, const vector<unsigned long> &b){
-                                    endpos[c] = c; 
-                                    if (b.empty())
+                        for (int c = 0; c < PARAL; c++)
+                        {
+                            swapTasks.emplace_back(threadpools[3].enqueue([&, c](const vector<unsigned long> &a, const vector<unsigned long> &b) {
+                                endpos[c] = c;
+                                if (b.empty())
+                                    return true;
+
+                                for (auto ita = a.begin() + c, itb = b.begin() + c; ita < a.end() && itb < b.end(); ita += PARAL, itb += PARAL)
+                                {
+                                    if (*ita < *itb)
                                         return true;
 
-                                    for (auto ita = a.begin()+c, itb = b.begin()+c; ita < a.end() && itb < b.end(); ita+=PARAL, itb+=PARAL)
-                                    {   
-                                        if (*ita < *itb)
-                                            return true;
+                                    if (*ita > *itb)
+                                        return false;
+                                    endpos[c] += PARAL;
+                                }
 
-                                        if (*ita > *itb)
-                                            return false;
-                                        endpos[c] += PARAL ;
-                                    }
-
-                                    return false;
-                            },          pri, qri));
-                        } 
-                        
-                        
-                        for (auto &st : swapTasks) {
-                            temp_res[g] = st.get();
-                            g++; 
+                                return false;
+                            },
+                                                                          pri, qri));
                         }
 
-                        for (int c=0; c<PARAL; c++) {
-                            if (endpos[c] < stop) {
-                                new_res = temp_res[c]; 
+                        for (auto &st : swapTasks)
+                        {
+                            temp_res[g] = st.get();
+                            g++;
+                        }
+
+                        for (int c = 0; c < PARAL; c++)
+                        {
+                            if (endpos[c] < stop)
+                            {
+                                new_res = temp_res[c];
                                 stop = endpos[c];
                             }
                         }
 
-                        if (new_res) {
+                        if (new_res)
+                        {
                             parents[n] = p;
                             qri = pri;
                         }
