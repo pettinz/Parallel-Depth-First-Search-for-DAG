@@ -4,6 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <optional>
+#include <climits>
 
 #include "dag.hpp"
 #include "threadpool.hpp"
@@ -13,8 +14,8 @@
 
 ThreadPool threadpools[3] = {
     ThreadPool(thread::hardware_concurrency()),
-    ThreadPool(thread::hardware_concurrency() / 2),
-    ThreadPool(thread::hardware_concurrency() / 2)};
+    ThreadPool((thread::hardware_concurrency()<2)?1:thread::hardware_concurrency()/2),
+    ThreadPool((thread::hardware_concurrency()<2)?1:thread::hardware_concurrency()/2)};
 
 bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &b)
 {
