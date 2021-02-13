@@ -19,6 +19,8 @@ FetchContent_MakeAvailable(spdlog)
 
 add_subdirectory(libs)
 
+add_subdirectory(app)
+
 add_subdirectory(src)
 
 find_package(Doxygen)
