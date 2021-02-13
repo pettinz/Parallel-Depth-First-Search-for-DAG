@@ -8,6 +8,12 @@ $ cmake -Bbuild
 $ cmake --build build
 ```
 
+If you are on Windows,
+
+```bash
+$ cmake --build build --config release
+```
+
 ## Docs
 
 After building
