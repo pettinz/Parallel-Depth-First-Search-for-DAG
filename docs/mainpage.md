@@ -83,26 +83,26 @@ Runlim *real* output line refers to the real time required, and *space* refers t
 We focused our consideration mainly on small dense and large files since small sparse execution were too fast and runlim was not able to catch samples and report meaningful results but we reported also small sparse screen for completeness. 
 Screenshots are reported in order with the increasing number of thread used for each graph.
 
-##### Results on small sparse real graph 
-![1 thread - Small sparse graph](screen/1T_SS.png)
-![2 thread - Small sparse graph](screen/2T_SS.png)
-![4 thread - Small sparse graph](screen/4T_SS.png)
-![8 thread - Small sparse graph](screen/8T_SS.png)
-![16 thread - Small sparse graph](screen/16T_SS.png) 
+##### Results on small sparse real graph
+<img src="1T_SS.png" width="800"/> \n
+<img src="2T_SS.png" width="800"/> \n
+<img src="4T_SS.png" width="800"/> \n
+<img src="8T_SS.png" width="800"/> \n
+<img src="16T_SS.png" width="800"/> 
 
 ##### Results on small dense real graph 
-![1 thread - Small dense graph](screen/1T_SD.png)
-![2 thread - Small dense graph](screen/2T_SD.png)
-![4 thread - Small dense graph](screen/4T_SD.png)
-![8 thread - Small dense graph](screen/8T_SD.png)
-![16 thread - Small dense graph](screen/16T_SD.png) 
+<img src="1T_SD.png" width="800"/> \n
+<img src="2T_SD.png" width="800"/> \n
+<img src="4T_SD.png" width="800"/> \n
+<img src="8T_SD.png" width="800"/> \n
+<img src="16T_SD.png" width="800"/> 
 
 ##### Results on large real graph 
-![1 thread - Large real graph](screen/1T_LR2.png)
-![2 thread - Large real graph](screen/2T_LR2.png)
-![4 thread - Large real graph](screen/4T_LR2.png)
-![8 thread - Large real graph](screen/8T_LR2.png)
-![16 thread - Large real graph](screen/16T_LR2.png) 
+<img src="1T_LR2.png" width="800"/> \n
+<img src="2T_LR2.png" width="800"/> \n
+<img src="4T_LR2.png" width="800"/> \n
+<img src="8T_LR2.png" width="800"/> \n
+<img src="16T_LR2.png" width="800"/> 
 
 
 We can notice that the required time decreased from 1 to 2 and from 2 to 4 running threads, but it start increasing again with 8 or 16 threads. 
