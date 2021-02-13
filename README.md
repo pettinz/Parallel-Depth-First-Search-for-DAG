@@ -3,7 +3,6 @@
 ## Install
 
 ```bash
-$ git clone https://github.com/pettinz/Parallel-Depth-First-Search-for-DAG.git && cd Parallel-Depth-First-Search-for-DAG
 $ cmake -Bbuild
 $ cmake --build build
 ```
