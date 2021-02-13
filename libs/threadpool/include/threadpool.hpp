@@ -13,6 +13,10 @@
 
 /**
  * @brief Implementation of a simple threadpool.
+ * 
+ * It creates a given number of workers running simultaneously and waiting on a condition variable.
+ * 
+ * When a new task is added to the queue via \ref enqueue "enqueue", the condition variable is triggered, one worker will wake up, pop the queue and execute the taks.
  */
 class ThreadPool
 {
@@ -24,9 +28,11 @@ class ThreadPool
 
 public:
     /**
-     * @brief Join threads on destruction.
+     * @brief Create a threadpool.
+     * 
+     * @param size number of workers running simultaneously
      */
-    ThreadPool(size_t);
+    ThreadPool(size_t size);
 
     /**
      * @brief Add a new task to the queue.

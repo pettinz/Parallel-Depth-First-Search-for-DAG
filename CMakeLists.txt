@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.14...3.18)
 project(
-    Parallel-Depth-First-Search-for-DAG
+    "Parallel Depth-First Search for Directed Acyclic Graphs"
     VERSION 1.0
-    DESCRIPTION "Project SDP class"
+    DESCRIPTION "Implementation of a parallel algorithm for DFS for DAG"
     LANGUAGES CXX
 )
 
