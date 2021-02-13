@@ -27,3 +27,11 @@ In build directory
 ```
 
 where `file1` is the file containing the DAG (with a specific and given format) and `file2` is the output file, storing the labeling.
+
+## Test
+
+After building, test are inside `build/test`. Tests include also a banchmark application to compare the parallel DFS timing with the sequetial one.
+
+```bash
+$ cmake --build build --target test
+```
