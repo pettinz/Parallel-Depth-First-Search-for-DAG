@@ -16,7 +16,7 @@ After building
 $ cmake --build build --target docs
 ```
 
-Docs are inside `build/docs/html" in html format.
+Docs are inside `build/docs/html` in html format.
 
 ## Run
 
