@@ -14,8 +14,8 @@
 
 ThreadPool threadpools[3] = {
     ThreadPool(thread::hardware_concurrency()),
-    ThreadPool((thread::hardware_concurrency()<2)?1:thread::hardware_concurrency()/2),
-    ThreadPool((thread::hardware_concurrency()<2)?1:thread::hardware_concurrency()/2)};
+    ThreadPool(ceil((double)thread::hardware_concurrency() / 2.0)),
+    ThreadPool(ceil((double)thread::hardware_concurrency() / 2.0))};
 
 bool DAG::swapPath(const vector<unsigned long> &a, const vector<unsigned long> &b)
 {
