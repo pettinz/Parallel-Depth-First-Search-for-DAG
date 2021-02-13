@@ -94,8 +94,8 @@ private:
      * @param pre pre-order time
      * @param post post-order time
      * @param visited carry for each vertex (index) if it has been visited or not
-     * @param preorder 
-     * @param postorder 
+     * @param preorder will carry the pre-order times
+     * @param postorder will carry the post-order times
      * @param innerRank 
      * @param outerRank 
      */

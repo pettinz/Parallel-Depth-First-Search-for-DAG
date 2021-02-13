@@ -51,7 +51,7 @@ void DAG::DFSUtil(unsigned long v, unsigned long &pre, unsigned long &post, vect
     innerRank[v] = min;
     postorder[v] = post++;
     outerRank[v] = post;
-    if (outerRank[v] < min) // foglia
+    if (outerRank[v] < min) // leadf
         innerRank[v] = outerRank[v];
 }
 
@@ -62,7 +62,7 @@ void DAG::DFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder,
     unsigned long pre = 0, post = 0;
 
     for (unsigned long i = 0; i < V_; i++)
-        if (isRoot(i) && visited[i] == false) // && np_[i] == 0)
+        if (isRoot(i) && visited[i] == false)
             DFSUtil(i, pre, post, visited, preorder_tmp, postorder_tmp, innerRank_tmp, outerRank_tmp);
 
     preorder = move(preorder_tmp);
@@ -153,7 +153,6 @@ void DAG::labeling(vector<unsigned long> &outerRank, vector<unsigned long> &inne
 
     while (!Q.empty())
     {
-        //vector<thread> tasks[2];
         vector<future<void>> tasks[2];
         threadsafe::queue<unsigned long> C;
 
@@ -308,7 +307,7 @@ void DAG::DT::computeNodeSizeAndPresum(vector<unsigned long> &nodeSize, vector<u
             unsigned long p = Q.front();
             Q.pop();
 
-            tasks[0].emplace_back(threadpools[0].enqueue([&](unsigned long p) { // tasks[0].emplace_back(thread([&](node p) {
+            tasks[0].emplace_back(threadpools[0].enqueue([&](unsigned long p) {
                 lock_guard<mutex> lock(mutexes[p]);
                 if (--marked[p] == 0)
                     C.push(p);
@@ -316,14 +315,14 @@ void DAG::DT::computeNodeSizeAndPresum(vector<unsigned long> &nodeSize, vector<u
                                                          parents_[p]));
         }
         for (auto &t : tasks[0])
-            t.wait(); // t.join();
+            t.wait();
 
         while (!C.empty())
         {
             unsigned long p = C.pop().value();
             Q.push(p);
 
-            tasks[1].emplace_back(threadpools[0].enqueue([&, p] { // tasks[1].emplace_back(thread([&, p] {
+            tasks[1].emplace_back(threadpools[0].enqueue([&, p] {
                 unsigned long sub = 0;
                 for (unsigned long i = IA_[p], j = 0; i < IA_[p + 1]; i++)
                 {
@@ -337,7 +336,7 @@ void DAG::DT::computeNodeSizeAndPresum(vector<unsigned long> &nodeSize, vector<u
         }
 
         for (auto &t : tasks[1])
-            t.wait(); // t.join();
+            t.wait();
     }
     // presum for multiple roots
     unsigned long i, j;
@@ -381,13 +380,12 @@ void DAG::DT::parallelDFS(vector<unsigned long> &preorder, vector<unsigned long>
             unsigned long p = Q.front();
             Q.pop();
 
-            tasks.emplace_back(threadpools[1].enqueue([&, p] { // tasks.emplace_back(thread([&, p] {
+            tasks.emplace_back(threadpools[1].enqueue([&, p] {
                 unsigned long pre = preorder_tmp[p], post = postorder_tmp[p];
                 vector<future<void>> tasks;
-                // vector<thread> tasks;
 
                 for (unsigned long i = IA_[p]; i < IA_[p + 1]; i++)
-                    tasks.emplace_back(threadpools[2].enqueue([&, pre, post](unsigned long i) { // tasks.emplace_back(thread([&, pre, post](node i) {
+                    tasks.emplace_back(threadpools[2].enqueue([&, pre, post](unsigned long i) {
                         preorder_tmp[i] = pre + presum[i];
                         postorder_tmp[i] = post + presum[i];
 
@@ -396,7 +394,7 @@ void DAG::DT::parallelDFS(vector<unsigned long> &preorder, vector<unsigned long>
                                                               JA_[i]));
 
                 for (auto &t : tasks)
-                    t.wait(); // t.join();
+                    t.wait();
 
                 preorder_tmp[p] = pre + depth;
                 postorder_tmp[p] = post + nodeSize[p] - 1;
@@ -404,7 +402,7 @@ void DAG::DT::parallelDFS(vector<unsigned long> &preorder, vector<unsigned long>
         }
 
         for (auto &t : tasks)
-            t.wait(); // t.join();
+            t.wait();
 
         P.swap(Q);
         depth++;
