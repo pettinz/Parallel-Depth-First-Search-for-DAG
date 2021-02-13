@@ -38,6 +38,8 @@ where `file1` is the file containing the DAG (with a specific and given format) 
 
 After building, test are inside `build/test`. Tests include also a banchmark application to compare the parallel DFS timing with the sequetial one.
 
+On Unix environment,
+
 ```bash
 $ cmake --build build --target test
 ```
