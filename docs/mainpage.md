@@ -58,55 +58,57 @@ The main files are:
 
 - _include/dag.hpp_, the header file, which contains the prototype of the `DAG` class
 - _src/dag.cpp_, the source file, which contains the implementation of the `DAG` class
-- _main.cpp_, the main source file, which prints in the output file the final labeling of the DAG received as argument
+- _app/main.cpp_, the main source file, which prints in the output file the final labeling of the DAG received as argument
 
 The _lib_ directory contains the following libraries
 
-- _threadpool_, a simple C++11 Thread Pool implementation, provided by [progschj](https://github.com/progschj/ThreadPool) adapted to our CMake project. 
-- _threadsafe_queue_, a thread safe queue implementation, used for operation of push and pop in a queue in a multi-threaded context
+- _threadpool_, a simple C++11 Thread Pool implementation, provided by [progschj](https://github.com/progschj/ThreadPool) adapted to our CMake project.
+- _threadsafe::queue_, a thread safe queue implementation, used for operation of push and pop in a queue in a multi-threaded context
 - _spdlog_, a very fast C++ logging library, used to provide some logging to the user, provided by [gabime](https://github.com/gabime/spdlog)
 
 The _test_ directory contains the following:
 
 - _gra/_ directory, which contains the graph files
-- _include/catch.hpp_, the library used for unit testing
 - _benchmark.cpp_, which provieds the execution time for each graph files in the _gra_ directory
-- _test.cpp_, which checks the algorithm correctness comparing the results provided by `DAG::parallelDFS` and the results provided by `DAG::DFS`
+- _testlib.cpp_, which checks the algorithm correctness comparing the results provided by `DAG::parallelDFS` and the results provided by `DAG::DFS`
 
-## Obtained results 
-The algorithm correctness has been proven running a comparison with the result obtained with a standard recursive DFS implementation. 
-Although the correctness of the algorithm has been proven, the result obtained in term of time are not surprising: the algorithm is slower than the DFS when run on a commonly available CPU. 
+## Obtained results
+
+The algorithm correctness has been proven running a comparison with the result obtained with a standard recursive DFS implementation.
+Although the correctness of the algorithm has been proven, the result obtained in term of time are not surprising: the algorithm is slower than the DFS when run on a commonly available CPU.
 In our case test have been performed on an AMD Ryzen 7 3700x CPU with 8 core and 16 hyper-thread, paired with 16 GB of Ram at 3400Mhz on a Linux Ubuntu 20.04 installation.  
-Here below we report some of the obtained results, with the program running with 1, 2, 4, 8 and 16 threads in parallel on three different graphs with different dimensions: one graph from "small dense real" folder (*citeseer_sub_10720.gra*), one from "small sparse real" folder (*amaze_dag_uniq.gra*)and the third from "large real" folder (*cit-Patents.scc.gra*)
-Threads number has limited changing the default value of "hardware concurrency" for the program and forcing the kernel to schedule it on a subset of available hyper-threads with the command "taskset" to select the usable hyper-threads for the following program. Runlim in version 1.7 has been used to track time and memory usage. 
-Runlim *real* output line refers to the real time required, and *space* refers to the amount of main memory used. 
-We focused our consideration mainly on small dense and large files since small sparse execution were too fast and runlim was not able to catch samples and report meaningful results but we reported also small sparse screen for completeness. 
+Here below we report some of the obtained results, with the program running with 1, 2, 4, 8 and 16 threads in parallel on three different graphs with different dimensions: one graph from "small dense real" folder (_citeseer_sub_10720.gra_), one from "small sparse real" folder (_amaze_dag_uniq.gra_)and the third from "large real" folder (_cit-Patents.scc.gra_)
+Threads number has limited changing the default value of "hardware concurrency" for the program and forcing the kernel to schedule it on a subset of available hyper-threads with the command "taskset" to select the usable hyper-threads for the following program. Runlim in version 1.7 has been used to track time and memory usage.
+Runlim _real_ output line refers to the real time required, and _space_ refers to the amount of main memory used.
+We focused our consideration mainly on small dense and large files since small sparse execution were too fast and runlim was not able to catch samples and report meaningful results but we reported also small sparse screen for completeness.
 Screenshots are reported in order with the increasing number of thread used for each graph.
 
 ##### Results on small sparse real graph
+
 <img src="1T_SS.png" width="800"/> \n
 <img src="2T_SS.png" width="800"/> \n
 <img src="4T_SS.png" width="800"/> \n
 <img src="8T_SS.png" width="800"/> \n
-<img src="16T_SS.png" width="800"/> 
+<img src="16T_SS.png" width="800"/>
 
-##### Results on small dense real graph 
+##### Results on small dense real graph
+
 <img src="1T_SD.png" width="800"/> \n
 <img src="2T_SD.png" width="800"/> \n
 <img src="4T_SD.png" width="800"/> \n
 <img src="8T_SD.png" width="800"/> \n
-<img src="16T_SD.png" width="800"/> 
+<img src="16T_SD.png" width="800"/>
 
-##### Results on large real graph 
+##### Results on large real graph
+
 <img src="1T_LR2.png" width="800"/> \n
 <img src="2T_LR2.png" width="800"/> \n
 <img src="4T_LR2.png" width="800"/> \n
 <img src="8T_LR2.png" width="800"/> \n
-<img src="16T_LR2.png" width="800"/> 
+<img src="16T_LR2.png" width="800"/>
 
-
-We can notice that the required time decreased from 1 to 2 and from 2 to 4 running threads, but it starts increasing again with 8 or 16 threads. 
-This is probably related to the increasing number of context switch with the number of cores and the implementation of the threadpool which pushes in the queue tasks in the order in which they have been created, often pushing threads that have to wait for mutex and that therefore remain in a wait status. 
-In a different environment that can better manage parallelization and with an ad-hoc implementation of the threadpool library it would be possible to get better results, improving the threadpool with a check over the related mutex before scheduling a task and swapping out tasks in wait status. 
-With big and complex graphs the number of generated task is huge therefore it is very complex managing them efficiently. We also noticed that removing one level of nested task (changing the code from the one proposed in the paper) does not provide any performance improvement probably because even with only one level of threads the algorithm saturates in any case the number of available core in the CPU letting some threads waiting in the threadpool queue. 
-The main advantage of this implementation over DFS one is that this parallel algorithm can better handle memory usage: even where the DFS execution crashes due to memory error (probably over the recursion stack) this implementation running on the same amount of memory can complete the execution successfully. From the screenshots above it is possible to see that the amount of memory required doesn't change with the number of threads, because each thread doesn't allocate any new structure. 
+We can notice that the required time decreased from 1 to 2 and from 2 to 4 running threads, but it starts increasing again with 8 or 16 threads.
+This is probably related to the increasing number of context switch with the number of cores and the implementation of the threadpool which pushes in the queue tasks in the order in which they have been created, often pushing threads that have to wait for mutex and that therefore remain in a wait status.
+In a different environment that can better manage parallelization and with an ad-hoc implementation of the threadpool library it would be possible to get better results, improving the threadpool with a check over the related mutex before scheduling a task and swapping out tasks in wait status.
+With big and complex graphs the number of generated task is huge therefore it is very complex managing them efficiently. We also noticed that removing one level of nested task (changing the code from the one proposed in the paper) does not provide any performance improvement probably because even with only one level of threads the algorithm saturates in any case the number of available core in the CPU letting some threads waiting in the threadpool queue.
+The main advantage of this implementation over DFS one is that this parallel algorithm can better handle memory usage: even where the DFS execution crashes due to memory error (probably over the recursion stack) this implementation running on the same amount of memory can complete the execution successfully. From the screenshots above it is possible to see that the amount of memory required doesn't change with the number of threads, because each thread doesn't allocate any new structure.
