@@ -72,8 +72,8 @@ private:
         /**
          * @brief Assign two labels (inner and outer rank) to each vertex. It mimics DFS execution in a parallel way
          * 
-         * @param outerRank will carry the outer rank of each vertex 
-         * @param innerRank will carry the inner rank of each vertex
+         * @param preorder will carry the pre-order times
+         * @param postorder will carry the post-order times
          */
         void parallelDFS(vector<unsigned long> &preorder, vector<unsigned long> &postorder);
     };

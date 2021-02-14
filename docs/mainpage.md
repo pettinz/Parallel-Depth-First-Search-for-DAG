@@ -52,7 +52,7 @@ In case of "nested tasks", we used two threadpools, each one limited on the half
 
 ## Project structure
 
-The project is a cross-platform CMake project written in C++ (see [README](README.md) for further details on building, running and/or testing).
+The project is a cross-platform CMake project written in C++.
 
 The main files are:
 
